@@ -1,0 +1,129 @@
+<template>
+  <div class="record-form">
+    <!-- 非可填列（只读基础信息） -->
+    <template v-if="fixedCols.length">
+      <div style="margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--b);">
+        <template v-for="col in fixedCols" :key="col.header">
+          <div v-if="col.type === 'sequence'" style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+            <span style="color: var(--tm);">{{ col.header }}</span>
+            <span style="font-weight: 600; color: var(--violet);">
+              {{ seqDisplayValue(col.header) }}
+              <span v-if="!existingSeqValue(col.header)" style="font-size: 10px;">🔄自动生成</span>
+            </span>
+          </div>
+          <div v-else style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
+            <span style="color: var(--tm);">{{ col.header }}</span>
+            <span style="font-weight: 500;">{{ row[col.header] || '-' }}</span>
+          </div>
+        </template>
+      </div>
+    </template>
+
+    <!-- 可填列 -->
+    <FormField
+      v-for="col in editableCols"
+      :key="col.header"
+      :column="col"
+      :model-value="fieldValue(col.header)"
+      :locked="isFilterField(col.header)"
+      :locked-value="currentUser"
+      :value-source="valueSource(col.header)"
+      :sequence-value="col.type === 'sequence' ? seqDisplayValue(col.header) : undefined"
+      @update:model-value="(val: string) => onFieldChange(col.header, val)"
+    />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { computed } from 'vue';
+import type { Template, EffectiveRow, ValueSource } from '@/types';
+import { useDataStore } from '@/stores/useDataStore';
+import { useSequence } from '@/composables/useSequence';
+import FormField from '@/components/common/FormField.vue';
+
+const props = defineProps<{
+  template: Template;
+  rowIndex: number;
+  row: Record<string, string>;
+  currentUser: string;
+  currentDate: string;
+  effectiveValues: EffectiveRow[];
+}>();
+
+const dataStore = useDataStore();
+const { getNextSeqValue } = useSequence();
+
+const fixedCols = computed(() =>
+  props.template.columns.filter(c => !c.isEditable && c.included)
+);
+
+const editableCols = computed(() =>
+  props.template.columns.filter(c => c.isEditable && c.included)
+);
+
+const effectiveRow = computed(() =>
+  props.effectiveValues[props.rowIndex] || {}
+);
+
+// 获取当前行已有的提交数据
+const existingRowData = computed(() => {
+  const tplId = props.template.id;
+  const cd = props.currentDate;
+  const cu = props.currentUser;
+  return ((dataStore.sub[tplId] || {})[cd] || {})[cu]?.[String(props.rowIndex)] || {};
+});
+
+// 序列字段：优先用已有提交数据，其次用基础数据，最后才生成新值
+function existingSeqValue(header: string): string {
+  // 1. 已有提交数据中的值
+  if (existingRowData.value[header]) {
+    return existingRowData.value[header];
+  }
+  // 2. 基础数据中的值
+  if (props.row[header]) {
+    return props.row[header];
+  }
+  // 3. 都没有，返回空
+  return '';
+}
+
+function seqDisplayValue(header: string): string {
+  const existing = existingSeqValue(header);
+  if (existing) return existing;
+  // 只有真正的新行才生成最新序列值
+  return getNextSeqValue(props.template, header);
+}
+
+function isFilterField(header: string): boolean {
+  return !!(props.template.filterField && header === props.template.filterField);
+}
+
+function fieldValue(header: string): string {
+  const ev = effectiveRow.value[header];
+  return ev ? ev.val : '';
+}
+
+function valueSource(header: string): ValueSource | 'empty' {
+  const ev = effectiveRow.value[header];
+  return ev ? ev.src : 'empty';
+}
+
+function onFieldChange(header: string, value: string) {
+  // 实时写入本地 store（不触发服务器保存）
+  const tplId = props.template.id;
+  const cd = props.currentDate;
+  const cu = props.currentUser;
+  const ri = String(props.rowIndex);
+  if (!dataStore.sub[tplId]) dataStore.sub[tplId] = {};
+  if (!dataStore.sub[tplId][cd]) dataStore.sub[tplId][cd] = {};
+  if (!dataStore.sub[tplId][cd][cu]) dataStore.sub[tplId][cd][cu] = {};
+  if (!dataStore.sub[tplId][cd][cu][ri]) dataStore.sub[tplId][cd][cu][ri] = {};
+  dataStore.sub[tplId][cd][cu][ri][header] = value;
+}
+</script>
+
+<style scoped>
+.record-form {
+  padding: 0 16px 16px;
+}
+</style>

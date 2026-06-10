@@ -1,0 +1,109 @@
+// =============================================
+// 每日数据填报系统 — 全局基础样式
+// =============================================
+
+@use './variables';
+@use './buttons';
+
+// ===== Reset =====
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+// ===== Body =====
+body {
+  font-family: var(--font-family);
+  background: var(--bg);
+  color: var(--t);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+// ===== App 容器 =====
+#app {
+  min-height: 100vh;
+}
+
+// ===== 滚动条 =====
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tm);
+}
+
+// ===== 动画 =====
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// ===== 过渡辅助类 =====
+.fade-in {
+  animation: fade-in 0.2s ease;
+}
+
+// ===== 链接 =====
+a {
+  color: var(--p);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+// ===== 选中文本 =====
+::selection {
+  background: var(--pl);
+  color: var(--p2);
+}
+
+// ===== 移动端输入框聚焦自动滚动保护 =====
+@media (max-width: 767px) {
+  .fi:focus,
+  .fs:focus,
+  .ft:focus {
+    scroll-margin-bottom: 120px;
+  }
+}
