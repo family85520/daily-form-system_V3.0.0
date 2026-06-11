@@ -52,15 +52,14 @@
     </div>
 
     <!-- 内容区 -->
-    <StatOverview v-if="activeTab === 'overview'" :tpl-id="selTplId" />
-    <StatFillAnalysis v-if="activeTab === 'fill'" :tpl-id="selTplId" />
-    <StatDataAnalysis v-if="activeTab === 'data'" :tpl-id="selTplId" />
-    <CrossAnalysis v-if="activeTab === 'cross'" :tpl-id="selTplId" />
+    <keep-alive>
+      <component :is="currentComponent" :tpl-id="selTplId" />
+    </keep-alive>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick, onMounted } from 'vue';
+import { ref, computed, nextTick, onMounted } from 'vue';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useDataStore } from '@/stores/useDataStore';
 import { useToast } from '@/composables/useToast';
@@ -85,6 +84,15 @@ const tabs = [
   { key: 'data', label: '📊 数据分析' },
   { key: 'cross', label: '🔀 交叉分析' },
 ];
+
+const componentMap: Record<string, typeof StatOverview> = {
+  overview: StatOverview,
+  fill: StatFillAnalysis,
+  data: StatDataAnalysis,
+  cross: CrossAnalysis,
+};
+
+const currentComponent = computed(() => componentMap[activeTab.value] || StatOverview);
 
 async function onVerify() {
   errMsg.value = '';

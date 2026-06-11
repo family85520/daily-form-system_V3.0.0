@@ -37,11 +37,12 @@
                 <th>填报人</th>
                 <th>模板</th>
                 <th>填报项</th>
-                <th>完成度</th>
+                <th>状态</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, idx) in dateViewData" :key="idx">
+              <tr v-for="(row, idx) in pagedDateViewData" :key="(currentPage - 1) * PAGE_SIZE + idx"
+                :class="{ 'row-unfilled': row.completion === 0 }">
                 <td style="font-weight: 500;">{{ row.date }}</td>
                 <td>
                   <span class="user-tag">{{ row.user }}</span>
@@ -49,16 +50,19 @@
                 <td>{{ row.tplName }}</td>
                 <td>{{ row.rowLabel }}</td>
                 <td>
-                  <div class="completion-cell">
-                    <div class="mini-bar-bg">
-                      <div class="mini-bar-fill" :style="{ width: row.completion + '%', background: getRateColor(row.completion) }"></div>
-                    </div>
-                    <span class="completion-text" :style="{ color: getRateColor(row.completion) }">{{ row.completion }}%</span>
-                  </div>
+                  <span v-if="row.completion === 100" class="status-badge status-filled">已填报</span>
+                  <span v-else class="status-badge status-unfilled">未填报</span>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- 分页 -->
+        <div class="pager" v-if="dateTotalPages > 1">
+          <button class="btn btn-sm btn-ghost" :disabled="currentPage <= 1" @click="currentPage--">◀</button>
+          <span>{{ currentPage }} / {{ dateTotalPages }}</span>
+          <button class="btn btn-sm btn-ghost" :disabled="currentPage >= dateTotalPages" @click="currentPage++">▶</button>
+          <span class="pager-info">每页 {{ PAGE_SIZE }} 条</span>
         </div>
       </div>
 
@@ -70,7 +74,7 @@
             <div class="summary-date">{{ ds.date }}</div>
             <div class="summary-stats">
               <span class="summary-users">{{ ds.users }}人填报</span>
-              <span class="summary-records">{{ ds.records }}条</span>
+              <span class="summary-records">{{ ds.filled }}/{{ ds.total }}条已填</span>
               <span class="summary-rate" :style="{ color: getRateColor(ds.rate) }">{{ ds.rate }}%</span>
             </div>
           </div>
@@ -103,11 +107,12 @@
                 <th>日期</th>
                 <th>模板</th>
                 <th>填报项</th>
-                <th>完成度</th>
+                <th>状态</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="(row, idx) in memberViewData" :key="idx">
+              <tr v-for="(row, idx) in pagedMemberViewData" :key="(currentPage - 1) * PAGE_SIZE + idx"
+                :class="{ 'row-unfilled': row.completion === 0 }">
                 <td>
                   <span class="user-tag">{{ row.user }}</span>
                 </td>
@@ -115,16 +120,19 @@
                 <td>{{ row.tplName }}</td>
                 <td>{{ row.rowLabel }}</td>
                 <td>
-                  <div class="completion-cell">
-                    <div class="mini-bar-bg">
-                      <div class="mini-bar-fill" :style="{ width: row.completion + '%', background: getRateColor(row.completion) }"></div>
-                    </div>
-                    <span class="completion-text" :style="{ color: getRateColor(row.completion) }">{{ row.completion }}%</span>
-                  </div>
+                  <span v-if="row.completion === 100" class="status-badge status-filled">已填报</span>
+                  <span v-else class="status-badge status-unfilled">未填报</span>
                 </td>
               </tr>
             </tbody>
           </table>
+        </div>
+        <!-- 分页 -->
+        <div class="pager" v-if="memberTotalPages > 1">
+          <button class="btn btn-sm btn-ghost" :disabled="currentPage <= 1" @click="currentPage--">◀</button>
+          <span>{{ currentPage }} / {{ memberTotalPages }}</span>
+          <button class="btn btn-sm btn-ghost" :disabled="currentPage >= memberTotalPages" @click="currentPage++">▶</button>
+          <span class="pager-info">每页 {{ PAGE_SIZE }} 条</span>
         </div>
       </div>
 
@@ -142,7 +150,7 @@
               <div class="tpl-stat-bar-fill" :style="{ width: ms.rate + '%', background: getRateColor(ms.rate) }"></div>
             </div>
             <div class="tpl-stat-detail">
-              {{ ms.records }}条记录 · {{ ms.dates }}天 · {{ ms.tpls }}个模板
+              {{ ms.filled }}/{{ ms.total }}条已填 · {{ ms.dates }}天 · {{ ms.tpls }}个模板
             </div>
           </div>
         </div>
@@ -152,7 +160,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useDataStore } from '@/stores/useDataStore';
 import type { Template } from '@/types';
 
@@ -163,6 +171,13 @@ const dataStore = useDataStore();
 const mode = ref<'date' | 'member'>('date');
 const selDate = ref('');
 const selMember = ref('');
+const currentPage = ref(1);
+const PAGE_SIZE = 50;
+
+// 筛选变化时重置页码
+watch([selDate, selMember, mode], () => {
+  currentPage.value = 1;
+});
 
 // 目标模板
 const targetTpls = computed<Template[]>(() => {
@@ -192,43 +207,58 @@ const allFillRows = computed<FillRow[]>(() => {
 
   targetTpls.value.forEach(tpl => {
     const tplSub = dataStore.sub[tpl.id] || {};
-    const editableCols = tpl.columns ? tpl.columns.filter(c => c.isEditable && c.included && c.type !== 'sequence') : [];
-    const editableCount = editableCols.length || 1;
+    const members = dataStore.getTplMembers(tpl.id);
+    const rowCount = tpl.rows ? tpl.rows.length : 0;
 
-    Object.keys(tplSub).sort().reverse().forEach(date => {
-      const daySub = tplSub[date] || {};
-      Object.keys(daySub).forEach(user => {
-        const ud = daySub[user];
-        if (!ud) return;
+    if (!members.length || !rowCount) {
+      // 无成员或无行时，只统计已有数据（按条目数计：每行=1条）
+      Object.keys(tplSub).sort().reverse().forEach(date => {
+        const daySub = tplSub[date] || {};
+        Object.keys(daySub).forEach(user => {
+          const ud = daySub[user];
+          if (!ud) return;
+          Object.keys(ud).forEach(ri => {
+            const rd = ud[ri];
+            if (!rd) return;
+            if (!Object.values(rd).some(v => v && String(v).trim())) return;
 
-        Object.keys(ud).forEach(ri => {
-          const rd = ud[ri];
-          if (!rd) return;
-          if (!Object.values(rd).some(v => v && String(v).trim())) return;
+            const baseRow = (tpl.rows && tpl.rows[parseInt(ri)]) ? tpl.rows[parseInt(ri)] : {};
+            const tfs = tpl.titleFields || [];
+            const rowLabel = tfs.length
+              ? tfs.map(h => baseRow[h] || '').filter(v => v.trim()).join(' · ') || '第' + (parseInt(ri) + 1) + '项'
+              : '第' + (parseInt(ri) + 1) + '项';
 
-          const filled = Object.values(rd).filter(v => v && String(v).trim()).length;
-          const total = editableCount;
-          const completion = Math.round((filled / total) * 100);
-
-          // 行标题
-          const baseRow = (tpl.rows && tpl.rows[parseInt(ri)]) ? tpl.rows[parseInt(ri)] : {};
-          const tfs = tpl.titleFields || [];
-          const rowLabel = tfs.length
-            ? tfs.map(h => baseRow[h] || '').filter(v => v.trim()).join(' · ') || '第' + (parseInt(ri) + 1) + '项'
-            : '第' + (parseInt(ri) + 1) + '项';
-
-          rows.push({
-            date,
-            user,
-            tplName: tpl.name,
-            tplId: tpl.id,
-            ri,
-            rowLabel,
-            filled,
-            total,
-            completion,
+            rows.push({
+              date, user, tplName: tpl.name, tplId: tpl.id, ri, rowLabel,
+              filled: 1, total: 1, completion: 100,
+            });
           });
         });
+      });
+      return;
+    }
+
+    // 有成员时：按条目数（每行=1条）统计已填报/未填报
+    Object.keys(tplSub).sort().reverse().forEach(date => {
+      const daySub = tplSub[date] || {};
+      members.forEach(user => {
+        const ud = daySub[user];
+
+        for (let ri = 0; ri < rowCount; ri++) {
+          const rd = ud ? ud[String(ri)] : null;
+          const hasData = rd && Object.values(rd).some(v => v && String(v).trim());
+
+          const baseRow = (tpl.rows && tpl.rows[ri]) ? tpl.rows[ri] : {};
+          const tfs = tpl.titleFields || [];
+          const rowLabel = tfs.length
+            ? tfs.map(h => baseRow[h] || '').filter(v => v.trim()).join(' · ') || '第' + (ri + 1) + '项'
+            : '第' + (ri + 1) + '项';
+
+          rows.push({
+            date, user, tplName: tpl.name, tplId: tpl.id, ri: String(ri), rowLabel,
+            filled: hasData ? 1 : 0, total: 1, completion: hasData ? 100 : 0,
+          });
+        }
       });
     });
   });
@@ -248,23 +278,32 @@ const dateViewData = computed(() => {
   return rows;
 });
 
+const pagedDateViewData = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return dateViewData.value.slice(start, start + PAGE_SIZE);
+});
+
+const dateTotalPages = computed(() =>
+  Math.max(1, Math.ceil(dateViewData.value.length / PAGE_SIZE))
+);
+
 const dateSummary = computed(() => {
-  const map: Record<string, { users: Set<string>; records: number; totalCompletion: number; count: number }> = {};
+  const map: Record<string, { users: Set<string>; filled: number; total: number }> = {};
 
   dateViewData.value.forEach(r => {
-    if (!map[r.date]) map[r.date] = { users: new Set(), records: 0, totalCompletion: 0, count: 0 };
+    if (!map[r.date]) map[r.date] = { users: new Set(), filled: 0, total: 0 };
     map[r.date].users.add(r.user);
-    map[r.date].records++;
-    map[r.date].totalCompletion += r.completion;
-    map[r.date].count++;
+    if (r.filled) map[r.date].filled++;
+    map[r.date].total++;
   });
 
   return Object.entries(map)
     .map(([date, data]) => ({
       date,
       users: data.users.size,
-      records: data.records,
-      rate: data.count > 0 ? Math.round(data.totalCompletion / data.count) : 0,
+      filled: data.filled,
+      total: data.total,
+      rate: data.total > 0 ? Math.round((data.filled / data.total) * 100) : 0,
     }))
     .sort((a, b) => b.date.localeCompare(a.date));
 });
@@ -283,25 +322,34 @@ const memberViewData = computed(() => {
   return rows;
 });
 
+const pagedMemberViewData = computed(() => {
+  const start = (currentPage.value - 1) * PAGE_SIZE;
+  return memberViewData.value.slice(start, start + PAGE_SIZE);
+});
+
+const memberTotalPages = computed(() =>
+  Math.max(1, Math.ceil(memberViewData.value.length / PAGE_SIZE))
+);
+
 const memberSummary = computed(() => {
-  const map: Record<string, { records: number; dates: Set<string>; tpls: Set<string>; totalCompletion: number; count: number }> = {};
+  const map: Record<string, { filled: number; total: number; dates: Set<string>; tpls: Set<string> }> = {};
 
   memberViewData.value.forEach(r => {
-    if (!map[r.user]) map[r.user] = { records: 0, dates: new Set(), tpls: new Set(), totalCompletion: 0, count: 0 };
-    map[r.user].records++;
+    if (!map[r.user]) map[r.user] = { filled: 0, total: 0, dates: new Set(), tpls: new Set() };
+    if (r.filled) map[r.user].filled++;
+    map[r.user].total++;
     map[r.user].dates.add(r.date);
     map[r.user].tpls.add(r.tplId);
-    map[r.user].totalCompletion += r.completion;
-    map[r.user].count++;
   });
 
   return Object.entries(map)
     .map(([user, data]) => ({
       user,
-      records: data.records,
+      filled: data.filled,
+      total: data.total,
       dates: data.dates.size,
       tpls: data.tpls.size,
-      rate: data.count > 0 ? Math.round(data.totalCompletion / data.count) : 0,
+      rate: data.total > 0 ? Math.round((data.filled / data.total) * 100) : 0,
     }))
     .sort((a, b) => b.rate - a.rate);
 });
@@ -449,33 +497,30 @@ th {
   font-weight: 500;
 }
 
-/* 完成度单元格 */
-.completion-cell {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* 未填报行淡化 */
+.row-unfilled td {
+  color: var(--tm);
+  opacity: 0.65;
 }
 
-.mini-bar-bg {
-  flex: 1;
-  height: 6px;
-  background: var(--b);
+/* 状态徽章 */
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
   border-radius: 3px;
-  overflow: hidden;
-  min-width: 60px;
-}
-
-.mini-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.completion-text {
   font-size: 12px;
   font-weight: 600;
-  min-width: 36px;
-  text-align: right;
+  white-space: nowrap;
+}
+
+.status-filled {
+  background: var(--okl);
+  color: var(--ok);
+}
+
+.status-unfilled {
+  background: var(--dl);
+  color: var(--t);
 }
 
 /* 日期汇总 */
@@ -583,6 +628,56 @@ th {
 .tpl-stat-detail {
   font-size: 11px;
   color: var(--tm);
+}
+
+/* 分页 */
+.pager {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--b);
+  font-size: 13px;
+  color: var(--ts);
+}
+
+.pager-info {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--tm);
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--r);
+  font-size: 12px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  min-height: 32px;
+  background: none;
+  outline: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ts);
+  border: 1px solid var(--b);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--bl);
+}
+
+.btn-ghost:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 :host {

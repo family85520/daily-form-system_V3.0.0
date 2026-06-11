@@ -121,7 +121,7 @@ const targetTpls = computed<Template[]>(() => {
   return dataStore.tpls;
 });
 
-// 总体摘要
+// 总体摘要（按条目数统计）
 const summary = computed(() => {
   const tpls = targetTpls.value;
   const totalTemplates = tpls.length;
@@ -133,17 +133,13 @@ const summary = computed(() => {
     const tplSub = dataStore.sub[tpl.id] || {};
     const members = dataStore.getTplMembers(tpl.id);
     const rowCount = tpl.rows ? tpl.rows.length : 0;
-    const dates = Object.keys(tplSub);
 
     if (!members.length || !rowCount) {
-      // 无成员或无行时，只统计已有数据
-      dates.forEach(date => {
-        const daySub = tplSub[date] || {};
-        Object.keys(daySub).forEach(user => {
-          const ud = daySub[user];
+      // 无成员或无行时，只统计已有数据（每行=1条）
+      Object.values(tplSub).forEach(daySub => {
+        Object.values(daySub || {}).forEach(ud => {
           if (!ud) return;
-          Object.keys(ud).forEach(ri => {
-            const rd = ud[ri];
+          Object.values(ud).forEach(rd => {
             if (rd && Object.values(rd).some(v => v && String(v).trim())) {
               totalFilled++;
             }
@@ -153,23 +149,13 @@ const summary = computed(() => {
       return;
     }
 
-    // 有成员时计算期望值
-    const editableCols = tpl.columns ? tpl.columns.filter(c => c.isEditable && c.included && c.type !== 'sequence') : [];
-    const editableCount = editableCols.length;
-    if (!editableCount) return;
-
-    dates.forEach(date => {
-      const daySub = tplSub[date] || {};
+    // 有成员时：按条目数（每行=1条）统计
+    Object.values(tplSub).forEach(daySub => {
       members.forEach(user => {
-        const ud = daySub[user];
-        if (!ud) {
-          totalUnfilled += rowCount;
-          totalExpected += rowCount;
-          return;
-        }
+        const ud = (daySub as Record<string, unknown>)[user] as Record<string, Record<string, string>> | undefined;
         for (let ri = 0; ri < rowCount; ri++) {
-          const rd = ud[String(ri)];
           totalExpected++;
+          const rd = ud ? ud[String(ri)] : null;
           if (rd && Object.values(rd).some(v => v && String(v).trim())) {
             totalFilled++;
           } else {
