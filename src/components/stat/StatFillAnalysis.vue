@@ -168,6 +168,18 @@ const props = defineProps<{ tplId: string }>();
 
 const dataStore = useDataStore();
 
+// 获取某用户在模板中实际应填报的行索引列表（考虑 filterField）
+function getUserRowIndices(tpl: Template, user: string): number[] {
+  const ff = tpl.filterField;
+  if (ff && tpl.columns?.find(c => c.header === ff && c.included)) {
+    return (tpl.rows || []).reduce<number[]>((acc, row, i) => {
+      if ((row[ff] || '').trim() === user.trim()) acc.push(i);
+      return acc;
+    }, []);
+  }
+  return (tpl.rows || []).map((_, i) => i);
+}
+
 const mode = ref<'date' | 'member'>('date');
 const selDate = ref('');
 const selMember = ref('');
@@ -207,11 +219,15 @@ const allFillRows = computed<FillRow[]>(() => {
 
   targetTpls.value.forEach(tpl => {
     const tplSub = dataStore.sub[tpl.id] || {};
-    const members = dataStore.getTplMembers(tpl.id);
-    const rowCount = tpl.rows ? tpl.rows.length : 0;
 
-    if (!members.length || !rowCount) {
-      // 无成员或无行时，只统计已有数据（按条目数计：每行=1条）
+    // 从实际填报数据中提取有提交的用户（填报人）
+    const fillerSet = new Set<string>();
+    Object.keys(tplSub).forEach(date => {
+      Object.keys(tplSub[date] || {}).forEach(u => fillerSet.add(u));
+    });
+
+    // 无填报人时，回退到只统计已有数据
+    if (!fillerSet.size) {
       Object.keys(tplSub).sort().reverse().forEach(date => {
         const daySub = tplSub[date] || {};
         Object.keys(daySub).forEach(user => {
@@ -238,13 +254,16 @@ const allFillRows = computed<FillRow[]>(() => {
       return;
     }
 
-    // 有成员时：按条目数（每行=1条）统计已填报/未填报
+    // 为每个填报人统计其应填报的行范围（考虑 filterField）
     Object.keys(tplSub).sort().reverse().forEach(date => {
       const daySub = tplSub[date] || {};
-      members.forEach(user => {
+      fillerSet.forEach(user => {
+        const userRowIndices = getUserRowIndices(tpl, user);
+        if (!userRowIndices.length) return;
+
         const ud = daySub[user];
 
-        for (let ri = 0; ri < rowCount; ri++) {
+        userRowIndices.forEach(ri => {
           const rd = ud ? ud[String(ri)] : null;
           const hasData = rd && Object.values(rd).some(v => v && String(v).trim());
 
@@ -258,7 +277,7 @@ const allFillRows = computed<FillRow[]>(() => {
             date, user, tplName: tpl.name, tplId: tpl.id, ri: String(ri), rowLabel,
             filled: hasData ? 1 : 0, total: 1, completion: hasData ? 100 : 0,
           });
-        }
+        });
       });
     });
   });

@@ -112,6 +112,19 @@ const props = defineProps<{ tplId: string }>();
 
 const dataStore = useDataStore();
 
+// 获取某用户在模板中实际应填报的行索引列表（考虑 filterField）
+function getUserRowIndices(tpl: Template, user: string): number[] {
+  const ff = tpl.filterField;
+  if (ff && tpl.columns?.find(c => c.header === ff && c.included)) {
+    return (tpl.rows || []).reduce<number[]>((acc, row, i) => {
+      if ((row[ff] || '').trim() === user.trim()) acc.push(i);
+      return acc;
+    }, []);
+  }
+  // 无 filterField：所有行都属于该用户
+  return (tpl.rows || []).map((_, i) => i);
+}
+
 // 获取要统计的模板列表
 const targetTpls = computed<Template[]>(() => {
   if (props.tplId) {
@@ -121,7 +134,7 @@ const targetTpls = computed<Template[]>(() => {
   return dataStore.tpls;
 });
 
-// 总体摘要（按条目数统计）
+// 总体摘要（按条目数统计，考虑 filterField 分配的行范围）
 const summary = computed(() => {
   const tpls = targetTpls.value;
   const totalTemplates = tpls.length;
@@ -131,29 +144,25 @@ const summary = computed(() => {
 
   tpls.forEach(tpl => {
     const tplSub = dataStore.sub[tpl.id] || {};
-    const members = dataStore.getTplMembers(tpl.id);
-    const rowCount = tpl.rows ? tpl.rows.length : 0;
 
-    if (!members.length || !rowCount) {
-      // 无成员或无行时，只统计已有数据（每行=1条）
-      Object.values(tplSub).forEach(daySub => {
-        Object.values(daySub || {}).forEach(ud => {
-          if (!ud) return;
-          Object.values(ud).forEach(rd => {
-            if (rd && Object.values(rd).some(v => v && String(v).trim())) {
-              totalFilled++;
-            }
-          });
-        });
-      });
-      return;
-    }
-
-    // 有成员时：按条目数（每行=1条）统计
+    // 从实际填报数据中提取有提交的用户（填报人）
+    const fillerSet = new Set<string>();
     Object.values(tplSub).forEach(daySub => {
-      members.forEach(user => {
-        const ud = (daySub as Record<string, unknown>)[user] as Record<string, Record<string, string>> | undefined;
-        for (let ri = 0; ri < rowCount; ri++) {
+      Object.keys(daySub || {}).forEach(u => fillerSet.add(u));
+    });
+
+    if (!fillerSet.size) return;
+
+    // 为每个填报人计算其应填报的行范围
+    fillerSet.forEach(user => {
+      const userRowIndices = getUserRowIndices(tpl, user);
+      if (!userRowIndices.length) return;
+
+      Object.keys(tplSub).forEach(date => {
+        const daySub = tplSub[date] || {};
+        const ud = daySub[user];
+
+        userRowIndices.forEach(ri => {
           totalExpected++;
           const rd = ud ? ud[String(ri)] : null;
           if (rd && Object.values(rd).some(v => v && String(v).trim())) {
@@ -161,7 +170,7 @@ const summary = computed(() => {
           } else {
             totalUnfilled++;
           }
-        }
+        });
       });
     });
   });
@@ -202,31 +211,38 @@ const trendData = computed(() => {
   return result;
 });
 
-// 模板统计
+// 模板统计（考虑 filterField 分配的行范围）
 const tplStats = computed(() => {
   return targetTpls.value.map(tpl => {
     const tplSub = dataStore.sub[tpl.id] || {};
-    const members = dataStore.getTplMembers(tpl.id);
-    const rowCount = tpl.rows ? tpl.rows.length : 0;
     const dates = Object.keys(tplSub);
+
+    // 从实际填报数据中提取有提交的用户
+    const fillerSet = new Set<string>();
+    dates.forEach(date => {
+      Object.keys(tplSub[date] || {}).forEach(u => fillerSet.add(u));
+    });
 
     let totalFilled = 0;
     let totalExpected = 0;
 
-    if (members.length && rowCount) {
+    // 为每个填报人计算其应填报的行范围
+    fillerSet.forEach(user => {
+      const userRowIndices = getUserRowIndices(tpl, user);
+      if (!userRowIndices.length) return;
+
       dates.forEach(date => {
         const daySub = tplSub[date] || {};
-        members.forEach(user => {
-          const ud = daySub[user];
-          for (let ri = 0; ri < rowCount; ri++) {
-            totalExpected++;
-            if (ud && ud[String(ri)] && Object.values(ud[String(ri)]).some(v => v && String(v).trim())) {
-              totalFilled++;
-            }
+        const ud = daySub[user];
+
+        userRowIndices.forEach(ri => {
+          totalExpected++;
+          if (ud && ud[String(ri)] && Object.values(ud[String(ri)]).some(v => v && String(v).trim())) {
+            totalFilled++;
           }
         });
       });
-    }
+    });
 
     const rate = totalExpected > 0 ? Math.round((totalFilled / totalExpected) * 100) : 0;
 
@@ -236,38 +252,43 @@ const tplStats = computed(() => {
       totalFilled,
       totalExpected,
       rate,
-      members,
+      members: [...fillerSet],
       dates,
     };
   });
 });
 
-// 成员统计
+// 成员统计（考虑 filterField 分配的行范围）
 const memberStats = computed(() => {
   const userMap: Record<string, { filled: number; expected: number; activeDays: Set<string> }> = {};
 
   targetTpls.value.forEach(tpl => {
     const tplSub = dataStore.sub[tpl.id] || {};
-    const members = dataStore.getTplMembers(tpl.id);
-    const rowCount = tpl.rows ? tpl.rows.length : 0;
 
-    if (!members.length || !rowCount) return;
+    // 从实际填报数据中提取有提交的用户
+    const fillerSet = new Set<string>();
+    Object.keys(tplSub).forEach(date => {
+      Object.keys(tplSub[date] || {}).forEach(u => fillerSet.add(u));
+    });
 
-    members.forEach(user => {
+    fillerSet.forEach(user => {
       if (!userMap[user]) userMap[user] = { filled: 0, expected: 0, activeDays: new Set() };
+
+      const userRowIndices = getUserRowIndices(tpl, user);
+      if (!userRowIndices.length) return;
 
       Object.keys(tplSub).forEach(date => {
         const daySub = tplSub[date] || {};
         const ud = daySub[user];
         let hasData = false;
 
-        for (let ri = 0; ri < rowCount; ri++) {
+        userRowIndices.forEach(ri => {
           userMap[user].expected++;
           if (ud && ud[String(ri)] && Object.values(ud[String(ri)]).some(v => v && String(v).trim())) {
             userMap[user].filled++;
             hasData = true;
           }
-        }
+        });
 
         if (hasData) userMap[user].activeDays.add(date);
       });
