@@ -1,52 +1,73 @@
 // =============================================
-// CSS 变量定义
-// 从原 style.css :root 提取，保持值完全一致
+// 碧氧清新风 UI Design System — CSS 变量
 // =============================================
 
 :root {
   // ===== 背景 =====
-  --bg: #f0f4f8;
-  --sf: #ffffff;
+  --bg: #E8F2F5;
+  --sf: #FFFFFF;
 
-  // ===== 主色调（蓝） =====
-  --p: #2563eb;
-  --pl: #dbeafe;
-  --p2: #1d4ed8;
-  --p3: #eff6ff;
+  // ===== 主色调（青绿） =====
+  --p: #26A69A;
+  --pl: #E0F2F1;
+  --p2: #00897B;
+  --p3: #F5FCFB;
 
   // ===== 辅助色（天蓝） =====
-  --a: #0284c7;
-  --al: #e0f2fe;
+  --a: #0288D1;
+  --al: #E1F5FE;
 
   // ===== 危险/错误（红） =====
-  --d: #dc2626;
-  --dl: #fef2f2;
+  --d: #DC2626;
+  --dl: #FEF2F2;
 
   // ===== 警告（琥珀） =====
-  --w: #f59e0b;
-  --wl: #fffbeb;
+  --w: #F59E0B;
+  --wl: #FFFBEB;
 
   // ===== 成功（绿） =====
-  --ok: #16a34a;
-  --okl: #f0fdf4;
+  --ok: #16A34A;
+  --okl: #F0FDF4;
 
   // ===== 紫色（继承/特殊） =====
-  --violet: #7c3aed;
-  --vl: #f5f3ff;
+  --violet: #7C3AED;
+  --vl: #F5F3FF;
 
   // ===== 文字 =====
-  --t: #1e293b;
-  --ts: #475569;
-  --tm: #94a3b8;
+  --t: #004D40;
+  --ts: #00695C;
+  --tm: #5F8E8B;
 
   // ===== 边框 =====
-  --b: #e2e8f0;
-  --bl: #f1f5f9;
-  --border: #cbd5e1;
+  --b: #B2DFDB;
+  --bl: #F0FAF9;
+  --border: #80CBC4;
+
+  // ===== 卡片背景 =====
+  --card-bg: #D9EBEA;
 
   // ===== 圆角 =====
-  --r: 6px;
-  --rl: 8px;
+  --r: 12px;
+  --rl: 20px;
+  --r-pill: 9999px;
+
+  // ===== 阴影 =====
+  --shadow-sm: 0 4px 12px -4px rgba(38, 166, 154, 0.12);
+  --shadow: 0 8px 24px -6px rgba(38, 166, 154, 0.15);
+  --shadow-hover: 0 12px 32px -4px rgba(38, 166, 154, 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgba(255, 255, 255, 0.6);
+
+  // ===== 渐变色 =====
+  --gradient: linear-gradient(135deg, #26A69A 0%, #4DB6AC 100%);
+  --gradient-card: linear-gradient(180deg, #D9EBEA 0%, #E0F2F1 100%);
+
+  // ===== 玻璃效果 =====
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-blur: blur(12px);
+
+  // ===== 字体 =====
+  --font-family: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', -apple-system, sans-serif;
+  --font-display: 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
 
   // ===== 层级 =====
   --z-header: 900;
@@ -54,56 +75,58 @@
   --z-modal: 1000;
   --z-toast: 9999;
   --z-loading: 99998;
+
+  // ===== 布局 =====
+  --max-width: 1200px;
+  --tab-bar-height: 64px;
+  --header-height: 56px;
+  --sidebar-width: 220px;
 }
 
 // =============================================
-// SCSS 变量映射（供组件样式中使用）
+// SCSS 变量映射
 // =============================================
 
-// 背景
 $bg: var(--bg);
 $sf: var(--sf);
 
-// 主色调
 $primary: var(--p);
 $primary-light: var(--pl);
 $primary-dark: var(--p2);
 $primary-bg: var(--p3);
 
-// 辅助色
 $accent: var(--a);
 $accent-light: var(--al);
 
-// 危险
 $danger: var(--d);
 $danger-light: var(--dl);
 
-// 警告
 $warning: var(--w);
 $warning-light: var(--wl);
 
-// 成功
 $success: var(--ok);
 $success-light: var(--okl);
 
-// 紫色
 $violet: var(--violet);
 $violet-light: var(--vl);
 
-// 文字
 $text: var(--t);
 $text-secondary: var(--ts);
 $text-muted: var(--tm);
 
-// 边框
 $border: var(--b);
 $border-light: var(--bl);
 $border-default: var(--border);
 
-// 圆角
+$card-bg: var(--card-bg);
+
 $radius: var(--r);
 $radius-lg: var(--rl);
+$radius-pill: var(--r-pill);
 
-// 断点
+$shadow-sm: var(--shadow-sm);
+$shadow: var(--shadow);
+$shadow-hover: var(--shadow-hover);
+
 $breakpoint-tablet: 768px;
 $breakpoint-desktop: 1024px;

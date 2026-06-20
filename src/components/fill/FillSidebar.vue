@@ -194,8 +194,8 @@ function onReset() {
 
 .stat-bar {
   display: flex;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
 .stat-card {
@@ -204,10 +204,11 @@ function onReset() {
   background: var(--sf);
   border: 2px solid var(--b);
   border-radius: var(--rl);
-  padding: 14px;
+  padding: 16px 12px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.25s;
+  box-shadow: var(--shadow-sm);
 }
 
 .stat-card.disabled {
@@ -221,14 +222,14 @@ function onReset() {
 }
 
 .stat-filled.selected {
-  background: var(--okl);
+  background: var(--gradient);
+  color: #fff;
   border-color: var(--ok);
-  box-shadow: 0 0 0 2px var(--okl);
+  box-shadow: var(--shadow-hover);
 }
 
-.stat-filled .stat-num {
-  color: var(--ok);
-}
+.stat-filled.selected .stat-num { color: #fff; }
+.stat-filled.selected .stat-label { color: rgba(255,255,255,0.85); }
 
 /* 未填报：红色系 */
 .stat-unfilled {
@@ -236,14 +237,14 @@ function onReset() {
 }
 
 .stat-unfilled.selected {
-  background: var(--dl);
+  background: var(--gradient);
+  color: #fff;
   border-color: var(--d);
-  box-shadow: 0 0 0 2px var(--dl);
+  box-shadow: var(--shadow-hover);
 }
 
-.stat-unfilled .stat-num {
-  color: var(--d);
-}
+.stat-unfilled.selected .stat-num { color: #fff; }
+.stat-unfilled.selected .stat-label { color: rgba(255,255,255,0.85); }
 
 /* 总行数：蓝色系 */
 .stat-total {
@@ -251,19 +252,20 @@ function onReset() {
 }
 
 .stat-total.selected {
-  background: var(--p3);
+  background: var(--gradient);
+  color: #fff;
   border-color: var(--p);
-  box-shadow: 0 0 0 2px var(--pl);
+  box-shadow: var(--shadow-hover);
 }
 
-.stat-total .stat-num {
-  color: var(--p);
-}
+.stat-total.selected .stat-num { color: #fff; }
+.stat-total.selected .stat-label { color: rgba(255,255,255,0.85); }
 
 /* 模板行数：紫色系 */
 .stat-template {
-  border-color: var(--violet);
+  border-color: var(--b);
   cursor: default;
+  background: var(--card-bg);
 }
 
 .stat-num {
@@ -303,26 +305,26 @@ function onReset() {
 
 .user-select {
   width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--border);
+  padding: 10px 12px;
+  border: 2px solid var(--b);
   border-radius: var(--r);
   font-size: 14px;
   font-family: inherit;
   color: var(--t);
   background: var(--sf);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%235F8E8B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
+  background-position: right 12px center;
+  padding-right: 32px;
   -webkit-appearance: none;
   appearance: none;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .user-select:focus {
   border-color: var(--p);
-  box-shadow: 0 0 0 3px var(--pl);
+  box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.15);
 }
 
 .base-badge {

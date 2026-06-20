@@ -1,14 +1,21 @@
 <template>
   <header class="app-header">
-    <div class="header-top">
-      <div>
-        <h1 class="header-title">每日数据填报</h1>
-        <div class="header-date">{{ formattedDate }}</div>
+    <div class="header-inner">
+      <div class="header-brand">
+        <div class="brand-icon">
+          <i class="fas fa-leaf"></i>
+        </div>
+        <div class="brand-text">
+          <h1 class="header-title">日填报系统</h1>
+          <p class="header-sub">工作数据日常上报管理</p>
+        </div>
       </div>
-      <span :class="['conn-status', connClass]">{{ connText }}</span>
-    </div>
-    <div class="header-selector">
-      <slot name="selector" />
+      <div class="header-right">
+        <span :class="['conn-badge', connClass]">
+          <span class="conn-dot"></span>
+          {{ connText }}
+        </span>
+      </div>
     </div>
   </header>
 </template>
@@ -18,12 +25,6 @@ import { computed } from 'vue';
 import { useDataStore } from '@/stores/useDataStore';
 
 const dataStore = useDataStore();
-
-const formattedDate = computed(() => {
-  const d = new Date();
-  const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
-  return `${d.getMonth() + 1}月${d.getDate()}日 星期${weekDays[d.getDay()]}`;
-});
 
 const connClass = computed(() => {
   switch (dataStore.connectionStatus) {
@@ -35,8 +36,8 @@ const connClass = computed(() => {
 
 const connText = computed(() => {
   switch (dataStore.connectionStatus) {
-    case 'ok': return '● 已连接';
-    case 'err': return '● 离线';
+    case 'ok': return '已连接';
+    case 'err': return '离线';
     default: return '连接中...';
   }
 });
@@ -44,48 +45,87 @@ const connText = computed(() => {
 
 <style scoped>
 .app-header {
-  background: var(--p);
-  color: #fff;
-  padding: 14px 20px 12px;
   position: sticky;
   top: 0;
-  z-index: 900;
-  overflow: visible;
+  z-index: var(--z-header);
+  height: var(--header-height);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
 }
 
-.header-top {
+.header-inner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 16px;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 16px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
 }
 
 .header-title {
-  font-size: 17px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--t);
+  font-family: var(--font-display);
 }
 
-.header-date {
+.header-sub {
   font-size: 11px;
-  opacity: 0.75;
-  margin-top: 1px;
+  color: var(--tm);
 }
 
-.header-selector {
-  margin-top: 8px;
-  position: relative;
-  z-index: 9999;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-.conn-status {
+.conn-badge {
   font-size: 11px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  margin-left: auto;
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.conn-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
 }
 
 .conn-ok { background: var(--okl); color: var(--ok); }
+.conn-ok .conn-dot { background: var(--ok); }
 .conn-err { background: var(--dl); color: var(--d); }
+.conn-err .conn-dot { background: var(--d); }
 .conn-loading { background: var(--wl); color: var(--w); }
+.conn-loading .conn-dot { background: var(--w); animation: spin 1s linear infinite; }
 </style>

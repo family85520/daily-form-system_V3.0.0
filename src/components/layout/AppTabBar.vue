@@ -1,18 +1,22 @@
 <template>
   <nav class="tab-bar">
-    <button
-      v-for="tab in tabs"
-      :key="tab.name"
-      :class="['tab-item', { active: currentRoute === tab.name }]"
-      @click="navigateTo(tab.name)"
-    >
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-        <path v-for="(d, i) in tab.paths" :key="i" :d="d" />
-        <polyline v-if="tab.polyline" :points="tab.polyline" />
-        <circle v-if="tab.circle" :cx="tab.circle.cx" :cy="tab.circle.cy" :r="tab.circle.r" />
-      </svg>
-      <span>{{ tab.label }}</span>
-    </button>
+    <div class="tab-bar-inner">
+      <button
+        v-for="tab in tabs"
+        :key="tab.name"
+        :class="['tab-item', { active: currentRoute === tab.name }]"
+        @click="navigateTo(tab.name)"
+      >
+        <div class="tab-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path v-for="(d, i) in tab.paths" :key="i" :d="d" />
+            <polyline v-if="tab.polyline" :points="tab.polyline" />
+            <circle v-if="tab.circle" :cx="tab.circle.cx" :cy="tab.circle.cy" :r="tab.circle.r" />
+          </svg>
+        </div>
+        <span class="tab-label">{{ tab.label }}</span>
+      </button>
+    </div>
   </nav>
 </template>
 
@@ -83,10 +87,20 @@ function navigateTo(name: string) {
   transform: translateX(-50%);
   width: 100%;
   max-width: var(--max-width);
-  background: var(--sf);
-  display: flex;
-  border-top: 1px solid var(--b);
   z-index: var(--z-header);
+  padding: 0 16px 8px;
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+}
+
+.tab-bar-inner {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--rl);
+  display: flex;
+  padding: 4px;
+  box-shadow: var(--shadow);
 }
 
 .tab-item {
@@ -94,37 +108,61 @@ function navigateTo(name: string) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px 0 8px;
+  padding: 8px 0 6px;
   font-size: 11px;
   color: var(--tm);
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s;
   border: none;
   background: none;
   font-weight: 500;
-  font-family: inherit;
+  font-family: var(--font-family);
+  border-radius: 14px;
 }
 
-.tab-item svg {
+.tab-item:hover {
+  color: var(--p);
+  background: var(--p3);
+}
+
+.tab-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-bottom: 2px;
+  transition: all 0.2s;
+}
+
+.tab-icon svg {
   width: 20px;
   height: 20px;
-  margin-bottom: 2px;
-  stroke-width: 1.8;
 }
 
-.tab-item.active {
+.tab-item.active .tab-icon {
+  background: var(--gradient);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.tab-item.active .tab-label {
   color: var(--p);
-  border-top: 2px solid var(--p);
-  margin-top: -1px;
+  font-weight: 600;
 }
 
 @media (min-width: 768px) {
+  .tab-bar {
+    padding: 0 24px 12px;
+  }
+
   .tab-item {
-    padding: 12px 0 10px;
+    padding: 10px 0 8px;
     font-size: 12px;
   }
 
-  .tab-item svg {
+  .tab-icon svg {
     width: 22px;
     height: 22px;
   }

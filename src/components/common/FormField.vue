@@ -164,7 +164,7 @@ function onSelect(e: Event) {
 
 <style scoped lang="scss">
 .form-group {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 
   &:last-child {
     margin-bottom: 0;
@@ -175,17 +175,16 @@ function onSelect(e: Event) {
   display: block;
   font-size: 13px;
   color: var(--ts);
-  margin-bottom: 5px;
-  font-weight: 500;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .required-mark {
-  color: #ef4444;
+  color: var(--d);
   font-size: 16px;
   font-weight: 700;
   margin-left: 2px;
   vertical-align: middle;
-  text-shadow: 0 0 2px rgba(239, 68, 68, 0.3);
 }
 
 .lock-badge {
@@ -195,8 +194,8 @@ function onSelect(e: Event) {
   font-size: 11px;
   color: var(--violet);
   background: var(--vl);
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
   margin-left: 6px;
 }
 
@@ -207,8 +206,8 @@ function onSelect(e: Event) {
   font-size: 11px;
   color: var(--a);
   background: var(--al);
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
   margin-left: 6px;
 }
 
@@ -219,8 +218,8 @@ function onSelect(e: Event) {
   font-size: 11px;
   color: var(--violet);
   background: var(--vl);
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
   margin-left: 6px;
 }
 
@@ -231,34 +230,39 @@ function onSelect(e: Event) {
   font-size: 11px;
   color: var(--w);
   background: var(--wl);
-  padding: 1px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
   margin-left: 6px;
 }
 
 // 公共输入框样式
 @mixin field-base {
   width: 100%;
-  padding: 9px 12px;
-  border: 1px solid var(--border);
+  padding: 10px 14px;
+  border: 2px solid var(--border);
   border-radius: var(--r);
   font-size: 14px;
   font-family: inherit;
   color: var(--t);
   background: var(--sf);
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s;
   -webkit-appearance: none;
   appearance: none;
   outline: none;
 
   &:focus {
     border-color: var(--p);
-    box-shadow: 0 0 0 3px var(--pl);
+    box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.15);
   }
 
   &.has-value {
-    border-color: var(--a);
-    background: var(--al);
+    border-color: var(--p);
+    background: var(--p3);
+  }
+
+  &::placeholder {
+    color: var(--tm);
+    opacity: 0.6;
   }
 }
 
@@ -274,10 +278,10 @@ function onSelect(e: Event) {
 
 .field-select {
   @include field-base;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%235F8E8B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
-  padding-right: 28px;
+  background-position: right 12px center;
+  padding-right: 32px;
 }
 
 .field-hint {

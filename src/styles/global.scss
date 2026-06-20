@@ -1,5 +1,5 @@
 // =============================================
-// 每日数据填报系统 — 全局基础样式
+// 碧氧清新风 — 全局基础样式
 // =============================================
 
 @use './variables';
@@ -22,7 +22,7 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.5;
+  line-height: 1.6;
 }
 
 // ===== App 容器 =====
@@ -32,12 +32,13 @@ body {
 
 // ===== 滚动条 =====
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--bg);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -46,52 +47,50 @@ body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--tm);
+  background: var(--p);
 }
 
 // ===== 动画 =====
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fade-in-left {
+  from { opacity: 0; transform: translateX(-12px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes scale-in {
-  from {
-    opacity: 0;
-    transform: scale(0.85);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-oxy {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(38, 166, 154, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(38, 166, 154, 0); }
 }
 
 // ===== 过渡辅助类 =====
-.fade-in {
-  animation: fade-in 0.2s ease;
-}
+.fade-in { animation: fade-in 0.3s ease; }
+.slide-up { animation: slide-up 0.35s ease; }
 
 // ===== 链接 =====
 a {
   color: var(--p);
   text-decoration: none;
+  transition: color 0.2s;
 }
-
-a:hover {
-  text-decoration: underline;
-}
+a:hover { color: var(--p2); }
 
 // ===== 选中文本 =====
 ::selection {
@@ -99,11 +98,14 @@ a:hover {
   color: var(--p2);
 }
 
+// ===== 输入框通用样式 =====
+input, select, textarea {
+  font-family: var(--font-family);
+}
+
 // ===== 移动端输入框聚焦自动滚动保护 =====
 @media (max-width: 767px) {
-  .fi:focus,
-  .fs:focus,
-  .ft:focus {
+  .fi:focus, .fs:focus, .ft:focus {
     scroll-margin-bottom: 120px;
   }
 }

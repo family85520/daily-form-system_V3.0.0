@@ -216,13 +216,14 @@ onMounted(() => {
 
 .admin-stat-card {
   flex: 1;
-  background: var(--p3);
-  border: 1px solid var(--pl);
-  border-radius: var(--r);
-  padding: 12px 16px;
+  background: var(--card-bg);
+  border: 1px solid var(--b);
+  border-radius: var(--rl);
+  padding: 14px 16px;
   font-size: 13px;
-  color: var(--p);
-  font-weight: 500;
+  color: var(--ts);
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
 }
 
 .logout-btn {
@@ -240,34 +241,41 @@ onMounted(() => {
   display: flex;
   background: var(--bl);
   border: 1px solid var(--b);
-  border-radius: var(--r);
-  padding: 3px;
-  margin-bottom: 16px;
+  border-radius: var(--rl);
+  padding: 4px;
+  margin-bottom: 18px;
   overflow-x: auto;
   gap: 2px;
+  box-shadow: var(--shadow-sm);
 }
 
 .admin-tab {
   flex: 1;
   min-width: 50px;
-  padding: 9px 8px;
+  padding: 10px 10px;
   border: none;
   background: none;
   font-size: 12px;
-  font-family: inherit;
+  font-family: var(--font-family);
   font-weight: 500;
   color: var(--tm);
   cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.15s;
+  border-radius: var(--r);
+  transition: all 0.2s;
   white-space: nowrap;
   text-align: center;
+}
+
+.admin-tab:hover {
+  color: var(--p);
+  background: var(--p3);
 }
 
 .admin-tab.active {
   background: var(--sf);
   color: var(--p);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
 }
 
 @media (min-width: 768px) {

@@ -352,8 +352,8 @@ function getRateColor(rate: number): string {
 .stat-cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: 14px;
+  margin-bottom: 18px;
 }
 
 .stat-card {
@@ -364,6 +364,13 @@ function getRateColor(rate: number): string {
   border-radius: var(--rl);
   border: 1px solid var(--b);
   background: var(--sf);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
 }
 
 .stat-card-icon {
@@ -372,15 +379,17 @@ function getRateColor(rate: number): string {
 }
 
 .stat-card-value {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
   line-height: 1.2;
+  font-family: var(--font-display);
 }
 
 .stat-card-label {
   font-size: 12px;
   color: var(--tm);
   margin-top: 2px;
+  font-weight: 500;
 }
 
 .stat-card-primary .stat-card-value { color: var(--p); }

@@ -498,7 +498,7 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   .fill-layout {
     display: grid;
     grid-template-columns: 340px 1fr;
-    gap: 16px;
+    gap: 20px;
     align-items: start;
     min-height: calc(100vh - 180px);
   }
@@ -512,20 +512,20 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
 
 .empty-state {
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
   color: var(--tm);
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 12px;
+  font-size: 56px;
+  margin-bottom: 16px;
   display: block;
 }
 
 .tpl-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 12px;
+  gap: 14px;
 }
 
 @media (min-width: 768px) {
@@ -538,47 +538,66 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   background: var(--sf);
   border: 1px solid var(--b);
   border-radius: var(--rl);
-  padding: 20px;
+  padding: 22px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.25s;
   position: relative;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 
 .tpl-card:hover {
   border-color: var(--p);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.tpl-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.25s;
+}
+
+.tpl-card:hover::before {
+  opacity: 1;
 }
 
 .tpl-card-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: var(--pl);
-  color: var(--p);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r);
+  background: var(--gradient);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .tpl-card-name {
   font-size: 15px;
   font-weight: 600;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  color: var(--t);
 }
 
 .tpl-card-meta {
   font-size: 12px;
   color: var(--tm);
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
 }
 
@@ -587,10 +606,10 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
-  font-size: 18px;
-  color: var(--tm);
+  font-size: 20px;
+  color: var(--p);
   opacity: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.25s;
 }
 
 .tpl-card:hover .tpl-card-enter {

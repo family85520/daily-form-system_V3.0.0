@@ -204,25 +204,31 @@ function onResetRow() {
   background: var(--sf);
   border: 1px solid var(--b);
   border-radius: var(--rl);
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   overflow: hidden;
-  border-left: 3px solid var(--b);
-  transition: border-color 0.15s;
+  border-left: 4px solid var(--b);
+  transition: all 0.25s;
+  box-shadow: var(--shadow-sm);
+}
+
+.record-card:hover {
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
 }
 
 .record-card.done { border-left-color: var(--ok); }
 .record-card.part { border-left-color: var(--w); }
-.record-card.empty { border-left-color: var(--b); }
+.record-card.empty { border-left-color: var(--tm); }
 .record-card.inherit { border-left-color: var(--p); }
 
 .card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 14px 16px;
   cursor: pointer;
   user-select: none;
-  transition: background 0.1s;
+  transition: background 0.15s;
 }
 
 .card-header:hover { background: var(--bl); }
@@ -230,8 +236,9 @@ function onResetRow() {
 .card-title-area { flex: 1; min-width: 0; }
 
 .card-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--t);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -240,15 +247,15 @@ function onResetRow() {
 .card-summary {
   font-size: 12px;
   color: var(--tm);
-  margin-top: 2px;
+  margin-top: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .card-arrow {
-  font-size: 11px;
+  font-size: 12px;
   color: var(--tm);
-  transition: transform 0.15s;
+  transition: transform 0.25s;
   flex-shrink: 0;
   margin-left: 8px;
 }
@@ -257,11 +264,11 @@ function onResetRow() {
 
 .status-tag {
   display: inline-block;
-  padding: 2px 8px;
-  border-radius: 3px;
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
   font-size: 11px;
-  font-weight: 500;
-  margin-left: 6px;
+  font-weight: 600;
+  margin-left: 8px;
 }
 
 .tag-ok { background: var(--okl); color: var(--ok); }
@@ -272,33 +279,34 @@ function onResetRow() {
 .card-progress {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
+  gap: 8px;
+  padding: 10px 16px;
   background: var(--bl);
   font-size: 12px;
   color: var(--tm);
+  border-top: 1px solid var(--b);
 }
 
 .progress-bar {
   flex: 1;
-  height: 3px;
+  height: 6px;
   background: var(--b);
-  border-radius: 2px;
+  border-radius: 3px;
   overflow: hidden;
 }
 
 .progress-fill {
   height: 100%;
-  background: var(--p);
-  border-radius: 2px;
+  background: var(--gradient);
+  border-radius: 3px;
   transition: width 0.3s;
 }
 
 .card-body {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 0.25s ease;
+  transition: max-height 0.3s ease;
 }
 
-.record-card.expanded .card-body { max-height: 2000px; }
+.record-card.expanded .card-body { max-height: 3000px; }
 </style>

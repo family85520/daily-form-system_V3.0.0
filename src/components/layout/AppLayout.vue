@@ -1,15 +1,9 @@
 <template>
   <div class="app-container">
-    <AppHeader>
-      <template #selector>
-        <slot name="header-selector" />
-      </template>
-    </AppHeader>
-
+    <AppHeader />
     <main class="app-main">
       <slot />
     </main>
-
     <AppTabBar />
   </div>
 </template>
@@ -25,22 +19,26 @@ import AppTabBar from './AppTabBar.vue';
   margin: 0 auto;
   min-height: 100vh;
   position: relative;
-  padding-bottom: var(--tab-bar-height);
+  background: var(--bg);
 }
 
 .app-main {
-  padding: 20px;
+  padding: 20px 16px;
+  padding-bottom: calc(var(--tab-bar-height) + 16px);
+  animation: fade-in 0.3s ease;
 }
 
 @media (min-width: 768px) {
   .app-main {
-    padding: 24px;
+    padding: 28px 24px;
+    padding-bottom: calc(var(--tab-bar-height) + 20px);
   }
 }
 
 @media (min-width: 1024px) {
   .app-main {
-    padding: 28px 32px;
+    padding: 32px;
+    padding-bottom: calc(var(--tab-bar-height) + 24px);
   }
 }
 </style>

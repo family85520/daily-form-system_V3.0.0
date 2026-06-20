@@ -131,8 +131,8 @@ onUnmounted(() => {
   right: 0;
   background: var(--sf);
   border: 1px solid var(--b);
-  border-radius: var(--r);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  border-radius: var(--rl);
+  box-shadow: var(--shadow-hover);
   z-index: 9999;
   max-height: 280px;
   overflow-y: auto;
@@ -141,12 +141,12 @@ onUnmounted(() => {
 .tpl-option {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
+  gap: 10px;
+  padding: 12px 16px;
   font-size: 13px;
   color: var(--t);
   cursor: pointer;
-  transition: background 0.1s;
+  transition: background 0.15s;
   border-bottom: 1px solid var(--bl);
 }
 
@@ -157,21 +157,22 @@ onUnmounted(() => {
 .tpl-option.active {
   background: var(--p3);
   color: var(--p);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tpl-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  background: var(--pl);
-  color: var(--p);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r);
+  background: var(--gradient);
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
   flex-shrink: 0;
+  box-shadow: var(--shadow-sm);
 }
 
 .tpl-info {
@@ -180,7 +181,7 @@ onUnmounted(() => {
 }
 
 .tpl-name {
-  font-weight: 500;
+  font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -189,18 +190,18 @@ onUnmounted(() => {
 .tpl-meta {
   font-size: 11px;
   color: var(--tm);
-  margin-top: 1px;
+  margin-top: 2px;
 }
 
 .tpl-check {
   color: var(--ok);
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .tpl-option-all {
   border-top: 1px solid var(--b);
   color: var(--p);
-  font-weight: 500;
+  font-weight: 600;
   justify-content: center;
 }
 
