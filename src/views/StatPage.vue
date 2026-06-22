@@ -22,10 +22,11 @@
 
   <!-- 已验证 -->
   <div v-else>
-    <div class="stat-header">
-      <div class="stat-header-info">
-        <span class="stat-title">📊 数据统计分析</span>
-        <span class="stat-count">{{ dataStore.tpls.length }} 个模板 · {{ dataStore.totalRecords }} 条记录</span>
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="heading-section">📊 数据统计分析</h1>
+        <p class="text-body">{{ dataStore.tpls.length }} 个模板 · {{ dataStore.totalRecords }} 条记录</p>
       </div>
       <button class="btn btn-sm btn-ghost" @click="onLogout">🚪 退出</button>
     </div>
@@ -132,7 +133,28 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.auth-page {
+/* 页面标题 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.heading-section {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t);
+  font-family: var(--font-display);
+  margin-bottom: 4px;
+}
+
+.text-body {
+  font-size: 13px;
+  color: var(--tm);
+}
+
+.stat-header {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -194,25 +216,7 @@ onMounted(() => {
 }
 
 .stat-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.stat-header-info {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.stat-title {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--t);
-  font-family: var(--font-display);
+  display: none;
 }
 
 .stat-count {

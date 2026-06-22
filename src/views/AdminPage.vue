@@ -29,11 +29,14 @@
       @saved="onTplSaved"
     />
     <template v-else>
-      <div class="admin-top-bar">
-        <div class="admin-stat-card">
-          {{ dataStore.tpls.length }} 个模板 · {{ dataStore.totalRecords }} 条记录 · {{ dataStore.allMembers.length }} 位成员
+      <div class="page-header">
+        <div>
+          <h1 class="heading-section">⚙️ 系统管理</h1>
+          <p class="text-body">{{ dataStore.tpls.length }} 个模板 · {{ dataStore.totalRecords }} 条记录 · {{ dataStore.allMembers.length }} 位成员</p>
         </div>
-        <button class="btn btn-sm btn-ghost logout-btn" @click="onLogout">🚪 退出</button>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="btn btn-sm btn-ghost logout-btn" @click="onLogout">🚪 退出</button>
+        </div>
       </div>
 
       <div class="admin-tabs">
@@ -152,6 +155,27 @@ onMounted(() => {
 </script>
 
 <style scoped>
+/* 页面标题 */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.heading-section {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t);
+  font-family: var(--font-display);
+  margin-bottom: 4px;
+}
+
+.text-body {
+  font-size: 13px;
+  color: var(--tm);
+}
+
 .auth-page {
   display: flex;
   align-items: center;
@@ -207,23 +231,8 @@ onMounted(() => {
   margin-bottom: 12px;
 }
 
-.admin-top-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
 .admin-stat-card {
-  flex: 1;
-  background: var(--card-bg);
-  border: 1px solid var(--b);
-  border-radius: var(--rl);
-  padding: 14px 16px;
-  font-size: 13px;
-  color: var(--ts);
-  font-weight: 600;
-  box-shadow: var(--shadow-sm);
+  display: none;
 }
 
 .logout-btn {

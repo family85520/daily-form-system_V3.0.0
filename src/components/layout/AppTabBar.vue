@@ -89,14 +89,24 @@ function navigateTo(name: string) {
   max-width: var(--max-width);
   z-index: var(--z-header);
   padding: 0 16px 8px;
-  background: linear-gradient(to top, var(--bg) 60%, transparent);
+  background: linear-gradient(to top, var(--bg) 80%, transparent);
+}
+
+@media (max-width: 767px) {
+  .tab-bar {
+    padding: 0 12px 6px;
+  }
+}
+
+@media (min-width: 768px) {
+  .tab-bar {
+    display: none;
+  }
 }
 
 .tab-bar-inner {
-  background: var(--glass-bg);
-  backdrop-filter: var(--glass-blur);
-  -webkit-backdrop-filter: var(--glass-blur);
-  border: 1px solid rgba(255, 255, 255, 0.6);
+  background: var(--sf);
+  border: 1px solid var(--b);
   border-radius: var(--rl);
   display: flex;
   padding: 4px;
@@ -152,19 +162,28 @@ function navigateTo(name: string) {
   font-weight: 600;
 }
 
-@media (min-width: 768px) {
+@media (max-width: 767px) {
   .tab-bar {
-    padding: 0 24px 12px;
+    padding: 0 12px 6px;
+  }
+
+  .tab-bar-inner {
+    padding: 3px;
   }
 
   .tab-item {
-    padding: 10px 0 8px;
-    font-size: 12px;
+    padding: 6px 0 4px;
+    font-size: 10px;
+  }
+
+  .tab-icon {
+    width: 28px;
+    height: 28px;
   }
 
   .tab-icon svg {
-    width: 22px;
-    height: 22px;
+    width: 18px;
+    height: 18px;
   }
 }
 </style>

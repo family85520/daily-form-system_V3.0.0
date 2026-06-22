@@ -1,5 +1,5 @@
 <template>
-  <div v-if="show" class="modal-mask" @click.self="onMaskClick">
+  <div v-show="show" class="modal-mask" @click.self="onMaskClick">
     <div class="modal-wrap">
       <div class="modal-container" :style="{ maxWidth: maxWidth }">
         <div v-if="title" class="modal-header">
@@ -44,16 +44,17 @@ function onMaskClick() {
   inset: 0;
   background: rgba(15, 23, 42, 0.45);
   z-index: 9000;
-}
-
-.modal-wrap {
-  position: absolute;
-  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
-  pointer-events: none;
+}
+
+.modal-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-container {
@@ -61,10 +62,13 @@ function onMaskClick() {
   border-radius: var(--rl);
   border: 1px solid var(--b);
   width: 100%;
+  max-width: v-bind(maxWidth);
   max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
   pointer-events: auto;
+  /* 确保 modal 内容不跳动 */
+  will-change: transform;
 }
 
 .modal-header {

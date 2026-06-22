@@ -284,8 +284,9 @@ function onReset() {
   background: var(--sf);
   border: 1px solid var(--b);
   border-radius: var(--rl);
-  padding: 16px;
-  margin-bottom: 12px;
+  padding: 18px;
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-sm);
 }
 
 .cd-title {
@@ -298,10 +299,13 @@ function onReset() {
   color: var(--t);
 }
 
+/* 继承提示卡片 */
 .inherit-card {
   background: var(--vl);
   border-color: var(--violet);
+  box-shadow: var(--shadow-sm);
 }
+
 
 .user-select {
   width: 100%;

@@ -1,5 +1,13 @@
 <template>
   <div class="history-page">
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="heading-section">📜 历史记录</h1>
+        <p class="text-body">查看和筛选历史填报数据</p>
+      </div>
+    </div>
+
     <!-- 未选择模板 -->
     <div v-if="!activeTpl">
       <!-- 筛选区域（未选模板时显示） -->

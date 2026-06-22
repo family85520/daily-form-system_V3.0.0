@@ -109,3 +109,10 @@ input, select, textarea {
     scroll-margin-bottom: 120px;
   }
 }
+
+// ===== 侧边栏偏移 =====
+@media (min-width: 768px) {
+  .content-with-sidebar {
+    margin-left: var(--sidebar-width);
+  }
+}

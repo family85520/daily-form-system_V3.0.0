@@ -20,7 +20,7 @@
       <div class="progress-bar">
         <div class="progress-fill" :style="{ width: progressPercent + '%' }"></div>
       </div>
-      <n-button text type="primary" size="tiny" @click.stop="openQuickFill">快速填写</n-button>
+      <n-button text type="primary" size="tiny" @click.stop="onQuickFill">快速填写</n-button>
       <n-button text type="error" size="tiny" @click.stop="onResetRow">重置</n-button>
     </div>
 
@@ -35,18 +35,6 @@
         :effective-values="effectiveValues"
       />
     </div>
-
-    <QuickFillDialog
-      v-if="showQuickFill"
-      :show="true"
-      :template="template"
-      :row-index="rowIndex"
-      :current-user="currentUser"
-      :current-date="currentDate"
-      :effective-values="effectiveValues"
-      @close="showQuickFill = false"
-      @saved="onQuickFillSaved"
-    />
   </div>
 </template>
 
@@ -57,7 +45,6 @@ import { useDataStore } from '@/stores/useDataStore';
 import { useConfirm } from '@/composables/useConfirm';
 import { useToast } from '@/composables/useToast';
 import RecordForm from './RecordForm.vue';
-import QuickFillDialog from './QuickFillDialog.vue';
 
 const props = defineProps<{
   template: Template;
@@ -73,6 +60,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   refresh: [];
   'reset-row': [ri: number];
+  'open-quick-fill': [rowIndex: number];
 }>();
 
 const dataStore = useDataStore();
@@ -80,8 +68,6 @@ const { confirmModal } = useConfirm();
 const { toastSuccess } = useToast();
 
 const expanded = ref(false);
-const showQuickFill = ref(false);
-
 watch(() => props.forceExpand, (val) => {
   if (val === true) expanded.value = true;
   else if (val === false) expanded.value = false;
@@ -170,12 +156,8 @@ function toggle() {
   expanded.value = !expanded.value;
 }
 
-function openQuickFill() {
-  showQuickFill.value = true;
-}
-
-function onQuickFillSaved() {
-  emit('refresh');
+function onQuickFill() {
+  emit('open-quick-fill', props.rowIndex);
 }
 
 function onResetRow() {

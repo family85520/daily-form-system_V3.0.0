@@ -45,14 +45,22 @@ const connText = computed(() => {
 
 <style scoped>
 .app-header {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: var(--z-header);
+  left: var(--sidebar-width);
+  right: 0;
+  z-index: calc(var(--z-header) + 1);
   height: var(--header-height);
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
   border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+@media (max-width: 767px) {
+  .app-header {
+    left: 0;
+  }
 }
 
 .header-inner {
@@ -63,6 +71,26 @@ const connText = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
+}
+
+@media (min-width: 768px) {
+  .header-inner {
+    margin-left: var(--sidebar-width);
+  }
+}
+
+@media (max-width: 767px) {
+  .header-inner {
+    padding: 0 12px;
+  }
+
+  .brand-text {
+    display: none;
+  }
+
+  .header-sub {
+    display: none;
+  }
 }
 
 .header-brand {

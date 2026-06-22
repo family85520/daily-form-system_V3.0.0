@@ -1,12 +1,11 @@
 <template>
   <!-- 未选择模板 -->
   <div v-if="!dataStore.activeTemplateId">
-    <div class="cd" style="padding: 14px 16px;">
-      <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">
-        📋 请选择要填报的模板
-      </div>
-      <div style="font-size: 12px; color: var(--tm);">
-        共 {{ dataStore.tpls.length }} 个模板
+    <!-- 页面标题 -->
+    <div class="page-header">
+      <div>
+        <h1 class="heading-section">📋 选择填报模板</h1>
+        <p class="text-body">共 {{ dataStore.tpls.length }} 个可用模板</p>
       </div>
     </div>
     <div v-if="!dataStore.tpls.length" class="empty-state">
@@ -63,6 +62,7 @@
       @submit-all="onSubmitAll"
       @add-row="showAddRow = true"
       @batch-add="showBatchAdd = true"
+      @open-quick-fill="onOpenQuickFill"
     />
   </div>
 
@@ -96,6 +96,18 @@
     @saved="onDataChanged"
   />
 
+  <QuickFillDialog
+    v-if="quickFillState && activeTemplate"
+    :show="true"
+    :template="activeTemplate"
+    :row-index="quickFillState.rowIndex"
+    :current-user="currentUser"
+    :current-date="currentDate"
+    :effective-values="effectiveValues"
+    @close="quickFillState = null"
+    @saved="onDataChanged"
+  />
+
     <!-- 错误列表弹窗 -->
   <ErrorListModal
     :show="showErrors"
@@ -115,6 +127,7 @@ import FillSidebar from '@/components/fill/FillSidebar.vue';
 import FillMain from '@/components/fill/FillMain.vue';
 import AddRowDialog from '@/components/fill/AddRowDialog.vue';
 import BatchAddDialog from '@/components/fill/BatchAddDialog.vue';
+import QuickFillDialog from '@/components/fill/QuickFillDialog.vue';
 import ErrorListModal from '@/components/common/ErrorListModal.vue';
 
 const dataStore = useDataStore();
@@ -129,6 +142,7 @@ const showAddRow = ref(false);
 const showBatchAdd = ref(false);
 const showErrors = ref(false);
 const errorList = ref<string[]>([]);
+const quickFillState = ref<{ rowIndex: number } | null>(null);
 const currentUser = computed({
   get: () => dataStore.currentFillUser,
   set: (val: string) => dataStore.setCurrentFillUser(val),
@@ -335,6 +349,10 @@ function onDataChanged() {
   // Vue 响应式自动更新
 }
 
+function onOpenQuickFill(rowIndex: number) {
+  quickFillState.value = { rowIndex };
+}
+
 async function onInheritPrev() {
   try {
     if (!activeTemplate.value || !currentUser.value) return;
@@ -486,6 +504,24 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
 </script>
 
 <style scoped>
+/* 页面标题 */
+.page-header {
+  margin-bottom: 20px;
+}
+
+.heading-section {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t);
+  font-family: var(--font-display);
+  margin-bottom: 4px;
+}
+
+.text-body {
+  font-size: 13px;
+  color: var(--tm);
+}
+
 /* 移动端：上下结构，正常滚动 */
 .fill-layout {
   display: flex;

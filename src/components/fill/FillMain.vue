@@ -31,6 +31,7 @@
         :user-data="userData"
         :effective-values="effectiveValues"
         :force-expand="forceExpand"
+        @open-quick-fill="(ri) => $emit('open-quick-fill', ri)"
       />
 
       <!-- 底部操作（粘性定位，始终可见） -->
@@ -64,6 +65,7 @@ defineEmits<{
   'submit-all': [];
   'add-row': [];
   'batch-add': [];
+  'open-quick-fill': [rowIndex: number];
 }>();
 
 const forceExpand = ref<boolean | null>(null);
