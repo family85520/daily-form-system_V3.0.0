@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Daily Data Reporting System (每日数据填报系统) V3.0.0 — a team data collection tool rewritten from a single-file HTML app into Vue 3 + TypeScript. The Express backend serves both the legacy V1 frontend (`public/`) and the new Vue 3 frontend (`dist/`) via a runtime "dual-track" switch.
 
+**UI Design System**: 碧氧清新风 — teal/green primary color (`#26A69A`), large border-radius, glass morphism effects, gradient backgrounds. See `src/styles/variables.scss` for all CSS variables.
+
 ## Commands
 
 ```bash
@@ -39,6 +41,11 @@ node scripts/snapshot-all.js restore <snapshot-name>
 
 ## Architecture
 
+### Layout Structure (Desktop vs Mobile)
+- **Desktop (≥768px)**: Fixed left sidebar (`SidebarNav.vue`) + fixed top header (`AppHeader.vue`) + scrollable main content (`AppLayout.vue` with `margin-left: var(--sidebar-width)`)
+- **Mobile (<768px)**: Fixed top header only + fixed bottom tab bar (`AppTabBar.vue`)
+- All pages render through `AppLayout` wrapper which injects the layout chrome
+
 ### Dual-Track Frontend
 The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) or `public/` (V1, legacy HTML) based on `FRONTEND_VERSION` env var or the runtime API `POST /api/admin/switch-frontend {version: "v1"|"v2"}`. Static file caching is disabled to support instant switching.
 
@@ -67,6 +74,13 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
 - **Submissions**: nested as `tplId → date → user → rowIndex → fieldValues`
 - **Members**: tracked per template
 - **Field Rules**: condition (field + operator + value) → action (require/forbid/copy/validate_match/compare)
+- **filterField**: Template-level field that assigns rows to specific fillers (e.g., "责任人" column determines which user fills which rows)
+
+### Stats Calculation (Important)
+Statistics modules (`StatOverview.vue`, `StatFillAnalysis.vue`) calculate by **entry count** (each template row = 1 entry), not by field count. They only count entries for **actual fillers** determined by `filterField` — each user only fills rows where their name matches the filterField column. See `getUserRowIndices()` helper function.
+
+### Modals / Dialogs
+All dialogs (`BaseModal.vue`) use `v-show` (not `v-if`) to prevent DOM reflow jumps. They are rendered at the **page root level** (e.g., `FillPage.vue`), never nested inside child components like `RecordCard`. This ensures `position: fixed` positioning is not clipped by parent overflow.
 
 ### Language Split
 Frontend is TypeScript; backend is plain JavaScript (CommonJS). The backend was not refactored — only `server.js` was modified for dual-track support. ESLint is configured to ignore all backend JS files.
@@ -75,6 +89,6 @@ Frontend is TypeScript; backend is plain JavaScript (CommonJS). The backend was 
 
 - Vue components use `<script setup lang="ts">` with Composition API exclusively
 - Naive UI is the component library; toast/confirm use `createDiscreteApi` (no provider wrapping needed)
-- Styling uses dual-layer theming: CSS custom properties (`:root`) mapped to SCSS variables
+- Styling uses dual-layer theming: CSS custom properties (`:root`) mapped to SCSS variables in `src/styles/variables.scss`
 - Tests live in `tests/` mirroring the `src/` structure; test files are `*.test.ts`
 - No Git — use `npm run snapshot` before major changes; max 10 snapshots retained
