@@ -1,0 +1,62 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e9]:
+        - heading "日填报系统" [level=1] [ref=e10]
+        - paragraph [ref=e11]: 工作数据日常上报管理
+      - generic [ref=e12]:
+        - button "📋 煤矿每日复产复建情况填报 · 114项 ▼" [ref=e58] [cursor=pointer]:
+          - generic [ref=e15]: 📋 煤矿每日复产复建情况填报
+          - generic [ref=e16]: · 114项
+          - generic [ref=e17]: ▼
+        - generic [ref=e18]: 已连接
+  - complementary [ref=e20]:
+    - generic [ref=e23]:
+      - generic [ref=e24]: 功能导航
+      - generic [ref=e26] [cursor=pointer]: 工作台
+      - generic [ref=e28] [cursor=pointer]: 历史记录
+      - generic [ref=e30] [cursor=pointer]: 数据统计
+      - generic [ref=e32] [cursor=pointer]: 系统管理
+    - generic [ref=e34]:
+      - generic [ref=e35]: 填报进度
+      - generic [ref=e38]: 0%
+      - generic [ref=e39]: 本月已填报 7 天
+  - main [ref=e40]:
+    - generic [ref=e59]:
+      - complementary [ref=e60]:
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - generic [ref=e63]: "0"
+            - generic [ref=e64]: 已填报
+          - generic [ref=e65]:
+            - generic [ref=e66]: "0"
+            - generic [ref=e67]: 未填报
+          - generic [ref=e68]:
+            - generic [ref=e69]: "0"
+            - generic [ref=e70]: 总行数
+        - generic [ref=e72]:
+          - generic [ref=e73]: "114"
+          - generic [ref=e74]: 模板行数
+        - generic [ref=e76]:
+          - generic [ref=e77]: 📋 煤矿每日复产复建情况填报
+          - generic [ref=e78]:
+            - button "切换" [ref=e79] [cursor=pointer]
+            - button "重置" [ref=e80] [cursor=pointer]
+        - generic [ref=e81]:
+          - generic [ref=e82]: 👤 选择填报人（11人）
+          - combobox [active] [ref=e83]:
+            - option "-- 请选择填报人 --" [selected]
+            - option "富源县能源局"
+            - option "宣威市能源局"
+            - option "麒麟区能源局"
+            - option "师宗县能源局"
+            - option "罗平县能源局"
+            - option "云南省煤炭产业集团"
+            - option "沾益区能源局"
+            - option "陆良县能源局"
+            - option "会泽县发改局"
+            - option "华能滇东矿业分公司"
+            - option "市属"
+      - generic [ref=e85]:
+        - generic [ref=e86]: 👤
+        - paragraph [ref=e87]: 请先选择填报人

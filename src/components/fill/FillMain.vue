@@ -84,6 +84,10 @@ function collapseAll() {
   padding-bottom: 45px;
 }
 
+.action-bar {
+  margin-bottom: 20px;
+}
+
 .sticky-footer {
   position: sticky;
   bottom: 64px;
