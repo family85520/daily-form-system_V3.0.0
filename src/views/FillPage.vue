@@ -118,6 +118,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import { NButton, NResult } from 'naive-ui';
 import { useDataStore } from '@/stores/useDataStore';
 import { useInheritance } from '@/composables/useInheritance';
 import { useValidation } from '@/composables/useValidation';
@@ -442,7 +443,7 @@ async function onSubmitAll() {
           rd[c.header] = existRow[c.header] || baseRow[c.header] || '';
         } else if (c.isEditable) {
           // 校验数据 = 显示数据（与 RecordForm.fieldValue 逻辑一致）
-          let val = '';
+          let val: string;
           if (existRow[c.header] !== undefined && existRow[c.header] !== null) {
             // store 有该字段 → 用户编辑/显式继承的值
             val = (existRow[c.header] || '').trim();

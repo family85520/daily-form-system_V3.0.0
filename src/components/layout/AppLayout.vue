@@ -24,12 +24,24 @@ import AppTabBar from './AppTabBar.vue';
 }
 
 .app-main {
+  position: relative;
   margin-left: var(--sidebar-width);
   padding: 24px 28px;
   padding-top: calc(var(--header-height) + 24px);
   padding-bottom: 24px;
   min-height: 100vh;
   animation: fade-in 0.3s ease;
+  z-index: 1;
+}
+
+.app-main::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(0, 77, 64, 0.025) 1px, transparent 1px);
+  background-size: 28px 28px;
+  pointer-events: none;
+  z-index: -1;
 }
 
 @media (max-width: 767px) {

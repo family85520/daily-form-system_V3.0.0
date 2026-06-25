@@ -1,0 +1,36 @@
+- generic [ref=e3]:
+  - generic [ref=e4]:
+    - banner [ref=e5]:
+      - generic [ref=e6]:
+        - generic [ref=e9]:
+          - heading "日填报系统" [level=1] [ref=e10]
+          - paragraph [ref=e11]: 工作数据日常上报管理
+        - generic [ref=e13]: 已连接
+    - complementary [ref=e15]:
+      - generic [ref=e18]:
+        - generic [ref=e19]: 日填报系统
+        - generic [ref=e20]: 工作数据日常上报管理
+      - generic [ref=e21]:
+        - generic [ref=e22]: 功能导航
+        - generic [ref=e24] [cursor=pointer]: 工作台
+        - generic [ref=e26] [cursor=pointer]: 历史记录
+        - generic [ref=e28] [cursor=pointer]: 数据统计
+        - generic [ref=e30] [cursor=pointer]: 系统管理
+      - generic [ref=e32]:
+        - generic [ref=e33]: 填报进度
+        - generic [ref=e36]: 0%
+        - generic [ref=e37]: 本月已填报 7 天
+    - main [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e41]:
+          - heading "📋 选择填报模板" [level=1] [ref=e42]
+          - paragraph [ref=e43]: 共 1 个可用模板
+        - generic [ref=e45] [cursor=pointer]:
+          - generic [ref=e46]: 煤
+          - generic [ref=e47]: 煤矿每日复产复建情况填报
+          - generic [ref=e48]:
+            - generic [ref=e49]: 📊 114 行
+            - generic [ref=e50]: ✏️ 12 可填列
+            - generic [ref=e51]: 👥 11 人
+          - generic [ref=e52]: →
+  - generic [ref=e55]: 正在连接服务器...

@@ -188,6 +188,5 @@ function logAudit(action, target, detail, ip) {
 module.exports = {
     createTables,
     createIndexes,
-    migrateData,
-    logAudit
+    migrateData
 };

@@ -6,10 +6,10 @@ const express = require('express');
 const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
 const { queryOne, queryAll, getDB, saveDB } = require('../db/database');
-const { logAudit } = require('../db/migrations');
+const { zodValidate, templateSchema, deleteTemplateSchema } = require('../middleware/zodValidate');
 
 // --- 创建模板（无需认证） ---
-router.post('/template', writeRateLimit(20, 60000), function (req, res) {
+router.post('/template', writeRateLimit(20, 60000), zodValidate(templateSchema), function (req, res) {
     try {
         const tpl = req.body;
         const tid = tpl.id ? String(tpl.id) : ('tpl_' + Date.now());
@@ -38,7 +38,7 @@ router.post('/template', writeRateLimit(20, 60000), function (req, res) {
 });
 
 // --- 更新模板（无需认证） ---
-router.put('/template/:id', writeRateLimit(30, 60000), function (req, res) {
+router.put('/template/:id', writeRateLimit(30, 60000), zodValidate(templateSchema), function (req, res) {
     try {
         const tplId = String(req.params.id);
         const tpl = req.body;
@@ -71,8 +71,7 @@ router.put('/template/:id', writeRateLimit(30, 60000), function (req, res) {
                             [JSON.stringify(data), sub.id]);
                     }
                 });
-                logAudit('field_rename', tplId,
-                    keys.map(function (k) { return k + '→' + renames[k]; }).join(', '), req.ip);
+                writeAuditLog('field_rename', 'template', '字段重命名: ' + keys.map(function (k) { return k + '→' + renames[k]; }).join(', '), req.user || '', req.ip);
             }
         }
 
@@ -87,7 +86,7 @@ router.put('/template/:id', writeRateLimit(30, 60000), function (req, res) {
 });
 
 // --- 删除模板（无需认证） ---
-router.delete('/template/:id', writeRateLimit(10, 60000), function (req, res) {
+router.delete('/template/:id', writeRateLimit(10, 60000), zodValidate(deleteTemplateSchema), function (req, res) {
     try {
         const tplId = String(req.params.id);
         const db = getDB();
@@ -100,7 +99,6 @@ router.delete('/template/:id', writeRateLimit(10, 60000), function (req, res) {
         db.run("DELETE FROM submissions WHERE template_id = ?", [tplId]);
         db.run("DELETE FROM members WHERE template_id = ?", [tplId]);
         saveDB();
-        logAudit('template_delete', tplId, '', req.ip);
         writeAuditLog('template_delete', 'template', '删除模板「' + tplName + '」(ID: ' + tplId + ') 成功', req.user || '', req.ip);
         res.json({ success: true });
     } catch (err) {

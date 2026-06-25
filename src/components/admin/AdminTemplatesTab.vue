@@ -173,18 +173,4 @@ function onDelete(tpl: Template) {
 .tpl-card-meta { font-size: 12px; color: var(--tm); margin-bottom: 10px; }
 .tpl-card-actions { display: flex; gap: 6px; }
 .tpl-card-actions .btn { flex: 1; }
-
-.btn {
-  display: inline-flex; align-items: center; justify-content: center;
-  gap: 6px; padding: 9px 18px; border: 1px solid transparent;
-  border-radius: var(--r); font-size: 14px; font-family: inherit;
-  font-weight: 500; cursor: pointer; transition: all 0.15s;
-  min-height: 40px; line-height: 1.3; background: none; outline: none;
-}
-
-.btn-primary { background: var(--p); color: #fff; border-color: var(--p); }
-.btn-default { background: var(--sf); color: var(--t); border-color: var(--border); }
-.btn-default:hover { background: var(--bl); }
-.btn-info { background: var(--a); color: #fff; border-color: var(--a); }
-.btn-sm { padding: 6px 14px; font-size: 12px; min-height: 32px; }
 </style>

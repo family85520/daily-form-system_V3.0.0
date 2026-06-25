@@ -202,7 +202,7 @@ function onReset() {
   flex: 1;
   min-width: 0;
   background: var(--sf);
-  border: 2px solid var(--b);
+  border: none;
   border-radius: var(--rl);
   padding: 16px 12px;
   text-align: center;

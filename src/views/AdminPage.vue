@@ -295,55 +295,6 @@ onMounted(() => {
   }
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border: 1px solid transparent;
-  border-radius: var(--r);
-  font-size: 14px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 40px;
-  line-height: 1.3;
-  background: none;
-  outline: none;
-}
-
-.btn-primary {
-  background: var(--p);
-  color: #fff;
-  border-color: var(--p);
-}
-
-.btn-primary:hover {
-  background: var(--p2);
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--ts);
-  border: 1px solid var(--b);
-}
-
-.btn-ghost:hover {
-  background: var(--bl);
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 12px;
-  min-height: 32px;
-}
-
-.btn-block {
-  width: 100%;
-}
-
 :host {
   padding-bottom: 70px;
 }

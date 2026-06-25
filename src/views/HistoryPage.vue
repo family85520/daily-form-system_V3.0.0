@@ -144,7 +144,22 @@
           <button
             v-for="m in tplMembers"
             :key="m"
-            :class="['btn', 'btn-sm', getUserRecordCount(m) ? 'btn-info' : 'btn-ghost']"
+            :style="{
+              background: getUserRecordCount(m) ? 'var(--a)' : 'var(--sf)',
+              color: getUserRecordCount(m) ? '#fff' : 'var(--t)',
+              border: getUserRecordCount(m) ? 'none' : '2px solid var(--p)',
+              borderRadius: '9999px',
+              padding: '6px 14px',
+              fontSize: '12px',
+              fontFamily: 'inherit',
+              fontWeight: getUserRecordCount(m) ? '600' : '600',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+              minWidth: '80px',
+              textAlign: 'center',
+              outline: 'none',
+              boxShadow: getUserRecordCount(m) ? 'var(--shadow-sm)' : 'none'
+            }"
             @click="selectUser(m)"
           >
             {{ m }}{{ getUserRecordCount(m) ? ' (' + getUserRecordCount(m) + '天)' : '' }}
@@ -806,7 +821,7 @@ async function inheritSingleRow(rowIndex: string) {
 
 .tpl-card:hover {
   border-color: var(--p);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.08);
+  box-shadow: var(--shadow);
   transform: translateY(-1px);
 }
 
@@ -923,87 +938,6 @@ async function inheritSingleRow(rowIndex: string) {
 }
 
 /* ===== 按钮样式 ===== */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 9px 18px;
-  border: 1px solid transparent;
-  border-radius: var(--r);
-  font-size: 14px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 40px;
-  line-height: 1.3;
-  background: none;
-  outline: none;
-}
-
-.btn-primary {
-  background: var(--p);
-  color: #fff;
-  border-color: var(--p);
-}
-
-.btn-primary:hover {
-  background: var(--p2);
-  border-color: var(--p2);
-}
-
-.btn-default {
-  background: var(--sf);
-  color: var(--t);
-  border-color: var(--border);
-}
-
-.btn-default:hover {
-  background: var(--bl);
-  border-color: var(--tm);
-}
-
-.btn-info {
-  background: var(--a);
-  color: #fff;
-  border-color: var(--a);
-}
-
-.btn-info:hover {
-  background: #0369a1;
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--ts);
-  border: 1px solid var(--b);
-}
-
-.btn-ghost:hover {
-  background: var(--bl);
-  border-color: var(--tm);
-}
-
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 12px;
-  min-height: 32px;
-}
-
-.btn-block {
-  width: 100%;
-}
-
-.btn-group {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-group > * {
-  flex: 1;
-}
-
 .record-row {
   margin-bottom: 14px;
   padding-bottom: 12px;

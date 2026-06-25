@@ -92,7 +92,7 @@ describe('validateField', () => {
 
   it('日期字段格式错误时返回错误', () => {
     const col = makeCol({ type: 'date' });
-    const errors = validateField(col, '2024/01/01');
+    const errors = validateField(col, '2024年1月1日');
     expect(errors).toContain('日期格式应为 YYYY-MM-DD');
   });
 

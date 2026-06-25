@@ -54,7 +54,8 @@ const connText = computed(() => {
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
   -webkit-backdrop-filter: var(--glass-blur);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  border-bottom: none;
+  box-shadow: 0 1px 0 rgba(0, 77, 64, 0.04);
 }
 
 @media (max-width: 767px) {

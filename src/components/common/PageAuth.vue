@@ -22,6 +22,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { NButton, NCard, NInput } from 'naive-ui';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useToast } from '@/composables/useToast';
 

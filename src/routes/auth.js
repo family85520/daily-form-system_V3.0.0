@@ -5,10 +5,11 @@ const { writeAuditLog } = require('../db/database');
 const express = require('express');
 const router = express.Router();
 const { createSession, validateSession, deleteSession } = require('../services/session');
-const { verifyPassword, hashPassword, getAdminPwd } = require('../services/password');
+const { verifyPassword, hashPassword, getAdminPwd, checkPasswordStrength } = require('../services/password');
 const { rateLimit, writeRateLimit } = require('../middleware/security');
 const { queryOne, getDB, saveDB } = require('../db/database');
-const { logAudit } = require('../db/migrations');
+const { zodValidate, passwordChangeSchema } = require('../middleware/zodValidate');
+const audit = require('../constants/auditActions');
 
 // --- 密码验证路由（登录） ---
 router.post('/verify', async (req, res) => {
@@ -30,13 +31,11 @@ router.post('/verify', async (req, res) => {
         if (ok) {
             const token = createSession(ip);
             console.log('[验证] 通过 IP:', ip);
-            logAudit('login', '', '登录成功', ip);
-            writeAuditLog('login', 'auth', '用户登录成功', '', ip);        
+            writeAuditLog(audit.LOGIN, 'auth', '用户登录成功', '', ip);
             res.json({ success: true, token: token });
         } else {
             console.log('[验证] 拒绝 IP:', ip);
-            logAudit('login_fail', '', '密码错误', ip);
-            writeAuditLog('login_fail', 'auth', '登录失败: IP=' + ip, '', ip);
+            writeAuditLog(audit.LOGIN_FAIL, 'auth', '登录失败: IP=' + ip, '', ip);
             res.json({ success: false });
         }
     } catch (err) {
@@ -60,21 +59,18 @@ router.get('/auth/check', function (req, res) {
 router.post('/logout', function (req, res) {
     var token = req.headers['x-auth-token'];
     deleteSession(token);
-    logAudit('logout', '', '', req.ip);
-    writeAuditLog('logout', 'auth', '用户登出', req.user || '', req.ip);
+    writeAuditLog(audit.LOGOUT, 'auth', '用户登出', req.user || '', req.ip);
     res.json({ success: true });
 });
 
 // --- 修改密码 ---
-router.post('/password', writeRateLimit(10, 60000), async (req, res) => {
+router.post('/password', writeRateLimit(10, 60000), zodValidate(passwordChangeSchema), async (req, res) => {
     try {
         const { oldPwd, newPwd } = req.body;
 
-        if (!oldPwd || !newPwd) {
-            return res.json({ success: false, error: '参数不完整' });
-        }
-        if (newPwd.length < 4 || newPwd.length > 50) {
-            return res.json({ success: false, error: '密码长度需在4-50位之间' });
+        const strength = checkPasswordStrength(newPwd);
+        if (!strength.valid) {
+            return res.json({ success: false, error: '密码强度不足: ' + strength.reasons.join('；') });
         }
 
         const storedPwd = getAdminPwd();
@@ -88,8 +84,7 @@ router.post('/password', writeRateLimit(10, 60000), async (req, res) => {
         db.run("UPDATE system SET value = ? WHERE key = 'adminPwd'", [newHash]);
         db.run("INSERT OR IGNORE INTO system (key, value) VALUES ('pwdIsHashed', '2')");
         saveDB();
-        logAudit('password_change', '', '密码已修改', req.ip);
-        writeAuditLog('password_change', 'auth', '密码修改成功', req.user || '', req.ip);
+        writeAuditLog(audit.PASSWORD_CHANGE, 'auth', '密码修改成功', req.user || '', req.ip);
         res.json({ success: true });
     } catch (err) {
         console.error('修改密码失败:', err);
@@ -108,8 +103,7 @@ router.post('/reset', writeRateLimit(3, 300000), async (req, res) => {
         const storedPwd = getAdminPwd();
         const ok = await verifyPassword(password, storedPwd);
         if (!ok) {
-            logAudit('重置失败', '', '密码错误', req.ip);
-            writeAuditLog('重置失败', 'auth', '重置数据失败: 密码错误 IP=' + (req.ip || ''), '', req.ip);
+            writeAuditLog(audit.RESET_FAIL, 'auth', '重置数据失败: 密码错误 IP=' + (req.ip || ''), '', req.ip);
             return res.status(403).json({ success: false, error: '密码错误' });
         }
 
@@ -123,8 +117,7 @@ router.post('/reset', writeRateLimit(3, 300000), async (req, res) => {
         db.run("INSERT OR REPLACE INTO system (key, value) VALUES ('pwdIsHashed', '2')");
 
         saveDB();
-        logAudit('重置', '', '清除所有数据', req.ip);
-        writeAuditLog('重置', 'auth', '重置所有数据: 模板、提交、成员已清空，密码已重置为默认 IP=' + (req.ip || ''), '', req.ip);
+        writeAuditLog(audit.RESET_DATA, 'auth', '重置所有数据: 模板、提交、成员已清空，密码已重置为默认 IP=' + (req.ip || ''), '', req.ip);
         res.json({ success: true });
     } catch (err) {
         console.error('重置数据失败:', err);

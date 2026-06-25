@@ -666,39 +666,6 @@ th {
   color: var(--tm);
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border: 1px solid transparent;
-  border-radius: var(--r);
-  font-size: 12px;
-  font-family: inherit;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.15s;
-  min-height: 32px;
-  background: none;
-  outline: none;
-}
-
-.btn-ghost {
-  background: transparent;
-  color: var(--ts);
-  border: 1px solid var(--b);
-}
-
-.btn-ghost:hover:not(:disabled) {
-  background: var(--bl);
-}
-
-.btn-ghost:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
 :host {
   padding-bottom: 70px;
 }

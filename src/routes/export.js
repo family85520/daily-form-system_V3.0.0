@@ -6,10 +6,10 @@ const express = require('express');
 const router = express.Router();
 const XLSX = require('xlsx');
 const { queryOne, queryAll } = require('../db/database');
-const { logAudit } = require('../db/migrations');
+const { zodValidate, exportQuerySchema } = require('../middleware/zodValidate');
 
 // --- 导出 CSV（无需认证） ---
-router.get('/export/csv', (req, res) => {
+router.get('/export/csv', zodValidate(exportQuerySchema), (req, res) => {
     try {
         const tplId = String(req.query.tplId);
         const tpl = getTemplateById(tplId);
@@ -64,8 +64,7 @@ router.get('/export/csv', (req, res) => {
         const fileName = userLabel + '_' + dateLabel + '.csv';
 
         res.setHeader('Content-Type', 'text/csv;charset=utf-8');
-        logAudit('export_csv', tplId, filterDate + ' ' + filterUser, req.ip);
-        writeAuditLog('export', 'data', '导出CSV: 模板「' + (tpl.name || tplId) + '」「日期=' + (filterDate || '全部') + ' 用户=' + (filterUser || '全部') + '」成功', req.user || '', req.ip);
+        writeAuditLog('export_csv', 'data', '导出CSV: 模板「' + (tpl.name || tplId) + '」「日期=' + (filterDate || '全部') + ' 用户=' + (filterUser || '全部') + '」成功', req.user || '', req.ip);
         setDownloadHeader(res, fileName);
         res.send(csv);
     } catch (err) {
@@ -75,7 +74,7 @@ router.get('/export/csv', (req, res) => {
 });
 
 // --- 导出 Excel（无需认证） ---
-router.get('/export/excel', (req, res) => {
+router.get('/export/excel', zodValidate(exportQuerySchema), (req, res) => {
     try {
         const tplId = String(req.query.tplId);
         const tpl = getTemplateById(tplId);
@@ -144,8 +143,7 @@ router.get('/export/excel', (req, res) => {
         const fileName = userLabel + '_' + tpl.name + '_' + dateLabel + '.xlsx';
 
         res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        logAudit('export_excel', tplId, filterDate + ' ' + filterUser, req.ip);
-        writeAuditLog('export', 'data', '导出Excel: 模板「' + (tpl.name || tplId) + '」「日期=' + (filterDate || '全部') + ' 用户=' + (filterUser || '全部') + '」成功', req.user || '', req.ip);
+        writeAuditLog('export_excel', 'data', '导出Excel: 模板「' + (tpl.name || tplId) + '」「日期=' + (filterDate || '全部') + ' 用户=' + (filterUser || '全部') + '」成功', req.user || '', req.ip);
         setDownloadHeader(res, fileName);
         res.send(Buffer.from(wbout));
     } catch (err) {

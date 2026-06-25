@@ -360,9 +360,9 @@ function getRateColor(rate: number): string {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 18px 20px;
   border-radius: var(--rl);
-  border: 1px solid var(--b);
+  border: none;
   background: var(--sf);
   box-shadow: var(--shadow-sm);
   transition: all 0.25s;

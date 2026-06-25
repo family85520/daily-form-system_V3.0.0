@@ -15,6 +15,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { zhCN, dateZhCN } from 'naive-ui';
+import { NConfigProvider, NNotificationProvider } from 'naive-ui';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import LoadingOverlay from '@/components/common/LoadingOverlay.vue';
 import TemplateSelector from '@/components/template/TemplateSelector.vue';

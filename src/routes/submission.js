@@ -7,10 +7,10 @@ const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
 const { validateRequired } = require('../middleware/validate');
 const { getDB, saveDB } = require('../db/database');
-const { logAudit } = require('../db/migrations');
+const { zodValidate, submissionSchema, deleteSubmissionSchema } = require('../middleware/zodValidate');
 
 // --- 提交数据（无需认证） ---
-router.post('/submission', writeRateLimit(60, 60000), validateRequired(['tplId', 'date', 'user', 'submissions']), function (req, res) {
+router.post('/submission', writeRateLimit(60, 60000), zodValidate(submissionSchema), function (req, res) {
     try {
         const { tplId, date, user, submissions } = req.body;
         const tid = String(tplId);
@@ -34,7 +34,6 @@ router.post('/submission', writeRateLimit(60, 60000), validateRequired(['tplId',
         saveDB();
         var sTpl = queryOne("SELECT name FROM templates WHERE id = ?", [tid]);
         var tplName = (sTpl && sTpl.name) || tid;
-        logAudit('submission', tplId, date + ' ' + user, req.ip);
         writeAuditLog('submission_save', 'data', '保存填报数据: 模板「' + tplName + '」「日期=' + date + ' 用户=' + user + '」', req.user || '', req.ip);
         res.json({ success: true });
     } catch (err) {
@@ -44,7 +43,7 @@ router.post('/submission', writeRateLimit(60, 60000), validateRequired(['tplId',
 });
 
 // --- 删除提交（无需认证） ---
-router.delete('/submission', writeRateLimit(60, 60000), function (req, res) {
+router.delete('/submission', writeRateLimit(60, 60000), zodValidate(deleteSubmissionSchema), function (req, res) {
     try {
         var tplId = String(req.query.tplId || '');
         var date = req.query.date || '';
@@ -60,7 +59,6 @@ router.delete('/submission', writeRateLimit(60, 60000), function (req, res) {
         saveDB();
         var dTpl = queryOne("SELECT name FROM templates WHERE id = ?", [tplId]);
         var tplName = (dTpl && dTpl.name) || tplId;
-        logAudit('submission_delete', tplId, date + ' ' + user + ' #' + (ri + 1), req.ip);
         writeAuditLog('submission_delete', 'data', '删除填报数据: 模板「' + tplName + '」「日期=' + date + ' 用户=' + user + ' 行=' + ri + '」', req.user || '', req.ip);
         res.json({ success: true });
     } catch (err) {

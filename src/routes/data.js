@@ -6,6 +6,7 @@ const express = require('express');
 const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
 const { queryAll, getDB, saveDB, withTransaction } = require('../db/database');
+const { zodValidate, templateSchema, submissionSchema, bulkSaveSchema } = require('../middleware/zodValidate');
 
 // --- 数据读取（无需认证） ---
 router.get('/data', (req, res) => {
@@ -18,7 +19,7 @@ router.get('/data', (req, res) => {
 });
 
 // --- 批量保存（模板+成员+提交数据，兼容前端 svFull） ---
-router.post('/data', writeRateLimit(30, 60000), async function (req, res) {
+router.post('/data', writeRateLimit(30, 60000), zodValidate(bulkSaveSchema), async function (req, res) {
     try {
         const { tpls, members, sub } = req.body;
         const db = getDB();

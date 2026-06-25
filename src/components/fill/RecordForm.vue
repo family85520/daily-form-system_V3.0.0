@@ -102,7 +102,7 @@ function isFilterField(header: string): boolean {
 
 function fieldValue(header: string): string {
   const existing = existingRowData.value;
-  let val = '';
+  let val: string;
   if (existing && Object.prototype.hasOwnProperty.call(existing, header)) {
     // store 有该字段 → 使用用户编辑/显式继承的值
     val = existing[header] || '';

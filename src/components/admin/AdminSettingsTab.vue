@@ -180,10 +180,6 @@ async function onConfirmReset() {
 .form-input, .form-select, .form-textarea { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--r); font-size: 13px; font-family: inherit; color: var(--t); background: var(--sf); outline: none; transition: border-color 0.15s; }
 .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--p); }
 .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; -webkit-appearance: none; appearance: none; }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border: 1px solid transparent; border-radius: var(--r); font-size: 14px; font-family: inherit; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 40px; line-height: 1.3; background: none; outline: none; }
-.btn-primary { background: var(--p); color: #fff; border-color: var(--p); }
-.btn-primary:hover { background: var(--p2); }
-.btn-block { width: 100%; }
 :host {
   padding-bottom: 70px;
 }
@@ -195,25 +191,5 @@ async function onConfirmReset() {
 
 .btn-group .btn {
   flex: 1;
-}
-
-.btn-default {
-  background: var(--sf);
-  color: var(--t);
-  border-color: var(--border);
-}
-
-.btn-default:hover {
-  background: var(--bl);
-}
-
-.btn-danger {
-  background: var(--d);
-  color: #fff;
-  border-color: var(--d);
-}
-
-.btn-danger:hover {
-  background: #b91c1c;
 }
 </style>

@@ -40,6 +40,7 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import { NButton } from 'naive-ui';
 import type { Template, EffectiveRow } from '@/types';
 import { useDataStore } from '@/stores/useDataStore';
 import { useConfirm } from '@/composables/useConfirm';
@@ -184,7 +185,7 @@ function onResetRow() {
 <style scoped>
 .record-card {
   background: var(--sf);
-  border: 1px solid var(--b);
+  border: none;
   border-radius: var(--rl);
   margin-bottom: 12px;
   overflow: hidden;
@@ -194,8 +195,8 @@ function onResetRow() {
 }
 
 .record-card:hover {
-  box-shadow: var(--shadow);
-  transform: translateY(-1px);
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
 }
 
 .record-card.done { border-left-color: var(--ok); }
@@ -246,17 +247,18 @@ function onResetRow() {
 
 .status-tag {
   display: inline-block;
-  padding: 2px 10px;
+  padding: 3px 12px;
   border-radius: var(--r-pill);
   font-size: 11px;
   font-weight: 600;
   margin-left: 8px;
+  letter-spacing: 0.2px;
 }
 
-.tag-ok { background: var(--okl); color: var(--ok); }
-.tag-warn { background: var(--wl); color: var(--w); }
-.tag-error { background: var(--dl); color: var(--d); }
-.tag-info { background: var(--pl); color: var(--p); }
+.tag-ok { background: var(--ok); color: #fff; }
+.tag-warn { background: var(--w); color: #fff; }
+.tag-error { background: var(--d); color: #fff; }
+.tag-info { background: var(--p); color: #fff; }
 
 .card-progress {
   display: flex;

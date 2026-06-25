@@ -6,9 +6,10 @@ const express = require('express');
 const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
 const { queryAll, queryOne, getDB, saveDB } = require('../db/database');
+const { zodValidate, memberSchema } = require('../middleware/zodValidate');
 
 // --- 保存成员（无需认证） ---
-router.post('/members', writeRateLimit(30, 60000), function (req, res) {
+router.post('/members', writeRateLimit(30, 60000), zodValidate(memberSchema), function (req, res) {
     try {
         const { tplId, members } = req.body;
         const tid = String(tplId || '0');

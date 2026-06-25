@@ -447,10 +447,6 @@ th { background: var(--bl); font-weight: 600; font-size: 12px; }
 .switch.on::after { transform: translateX(16px); }
 .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 500; }
 .tag-info { background: var(--pl); color: var(--p); }
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 9px 18px; border: 1px solid transparent; border-radius: var(--r); font-size: 14px; font-family: inherit; font-weight: 500; cursor: pointer; transition: all 0.15s; min-height: 40px; line-height: 1.3; background: none; outline: none; }
-.btn-primary { background: var(--p); color: #fff; border-color: var(--p); }
-.btn-ghost { background: transparent; color: var(--ts); border: 1px solid var(--b); }
-.btn-sm { padding: 6px 14px; font-size: 12px; min-height: 32px; }
 :host {
   padding-bottom: 70px;
 }

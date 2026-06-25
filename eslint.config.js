@@ -17,6 +17,7 @@ export default tseslint.config(
       'src/routes/**',
       'src/services/**',
       'src/config/**',
+      'src/constants/**',
     ],
   },
 

@@ -11,9 +11,9 @@ Daily Data Reporting System (每日数据填报系统) V3.0.0 — a team data co
 ## Commands
 
 ```bash
-# Development (runs both frontend dev server on :5173 and backend on :3000)
-npm run dev              # Vite dev server (proxies /api to localhost:3000)
-npm run server           # Express backend only
+# Development
+npm run dev              # Vite dev server on :5173 (proxies /api to localhost:3000)
+npm run server           # Express backend on :3000 (run this first or in a second terminal)
 
 # Production
 npm run build            # Type-check (vue-tsc) + Vite build → dist/
@@ -57,6 +57,7 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
   - `useInheritance` — 3-tier data inheritance (today → most recent history → base template data). Row-level only; never mixes fields across different dates.
   - `useValidation` — Field validation + rule engine (11 operators, 13 action types)
   - `useSequence` — Auto-increment sequence fields
+  - `useFormSessionEdits` — Tracks user-edited fields during a form session via a module-level `Map`; renders edited cells differently from inherited cells.
   - `useToast`, `useConfirm`, `useLoading` — UI utilities via Naive UI discrete API
 - **Views**: `FillPage` (default `/`), `HistoryPage`, `StatPage` (password-gated), `AdminPage` (password-gated)
 - **Path alias**: `@` maps to `src/` (configured in both vite.config.ts and vitest.config.ts)
@@ -68,6 +69,8 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
 - **Routes** (`src/routes/`): auth, data, template, submission, member, export, audit
 - **Middleware pipeline**: security headers → rate limiting (per-endpoint) → auth → validation → error handler
 - **Config**: `src/config/index.js` — port, DB path, session duration, rate limits, backup intervals, default password
+- **Validation**: `src/middleware/zodValidate.js` — Zod-based request body validation middleware; `src/middleware/validate.js` — legacy field-level validation
+- **Audit**: `src/constants/auditActions.js` — typed action constants; `src/db/backup.js` — auto-backup + audit cleanup
 
 ### Key Data Model
 - **Template**: defines columns (type/required/constraints) + base rows + field rules
@@ -88,7 +91,8 @@ Frontend is TypeScript; backend is plain JavaScript (CommonJS). The backend was 
 ## Conventions
 
 - Vue components use `<script setup lang="ts">` with Composition API exclusively
-- Naive UI is the component library; toast/confirm use `createDiscreteApi` (no provider wrapping needed)
+- **Naive UI components must be explicitly imported** — the project does not use `unplugin-vue-components`. Every `<n-*>` component used in a template must have a corresponding named import from `naive-ui` (e.g., `import { NButton, NCard } from 'naive-ui'`). Missing imports cause silent component-not-found warnings at runtime.
+- Naive UI toast/confirm use `createDiscreteApi` (no provider wrapping needed)
 - Styling uses dual-layer theming: CSS custom properties (`:root`) mapped to SCSS variables in `src/styles/variables.scss`
 - Tests live in `tests/` mirroring the `src/` structure; test files are `*.test.ts`
 - No Git — use `npm run snapshot` before major changes; max 10 snapshots retained
