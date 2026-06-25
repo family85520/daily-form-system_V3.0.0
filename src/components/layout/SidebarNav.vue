@@ -4,10 +4,6 @@
       <div class="brand-icon">
         <i class="fas fa-leaf"></i>
       </div>
-      <div class="brand-text">
-        <span class="brand-title">日填报系统</span>
-        <span class="brand-sub">工作数据日常上报管理</span>
-      </div>
     </div>
 
     <div class="sidebar-section">
@@ -127,7 +123,7 @@ const progressDays = computed(() => {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: center;
   padding: 20px 16px 16px;
 }
 
@@ -143,26 +139,6 @@ const progressDays = computed(() => {
   font-size: 18px;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.brand-title {
-  font-size: 16px;
-  font-weight: 700;
-  color: var(--t);
-  font-family: var(--font-display);
-  white-space: nowrap;
-}
-
-.brand-sub {
-  font-size: 11px;
-  color: var(--tm);
-  margin-top: 2px;
 }
 
 .sidebar-section {
@@ -182,8 +158,10 @@ const progressDays = computed(() => {
 }
 
 .sidebar-footer {
-  margin-top: auto;
   padding: 12px;
+  border-top: 1px solid var(--bl);
+  margin-top: auto;
+  flex-shrink: 0;
 }
 
 .footer-card {

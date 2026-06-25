@@ -11,6 +11,7 @@
         </div>
       </div>
       <div class="header-right">
+        <slot name="selector" />
         <span :class="['conn-badge', connClass]">
           <span class="conn-dot"></span>
           {{ connText }}
@@ -72,12 +73,6 @@ const connText = computed(() => {
   align-items: center;
   justify-content: space-between;
   padding: 0 16px;
-}
-
-@media (min-width: 768px) {
-  .header-inner {
-    margin-left: var(--sidebar-width);
-  }
 }
 
 @media (max-width: 767px) {

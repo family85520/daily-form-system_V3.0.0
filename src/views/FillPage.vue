@@ -571,6 +571,12 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   }
 }
 
+@media (min-width: 1200px) {
+  .tpl-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
 .tpl-card {
   background: var(--sf);
   border: 1px solid var(--b);

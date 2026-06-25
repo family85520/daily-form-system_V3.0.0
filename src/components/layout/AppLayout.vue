@@ -1,6 +1,10 @@
 <template>
   <div class="app-container">
-    <AppHeader />
+    <AppHeader>
+      <template #selector>
+        <slot name="header-selector" />
+      </template>
+    </AppHeader>
     <SidebarNav />
     <main class="app-main">
       <slot />
