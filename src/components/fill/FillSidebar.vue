@@ -189,6 +189,7 @@ function onReset() {
     align-self: start;
     width: auto;
     max-width: none;
+    min-height: 540px;
   }
 }
 
@@ -196,6 +197,7 @@ function onReset() {
   display: flex;
   gap: var(--sp-3);
   margin-bottom: var(--sp-4);
+  min-height: 89px;
 }
 
 .stat-card {
