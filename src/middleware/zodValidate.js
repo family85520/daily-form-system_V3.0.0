@@ -113,6 +113,14 @@ const memberSchema = zod.object({
 });
 
 /**
+ * 密码修改 schema
+ */
+const passwordChangeSchema = zod.object({
+    oldPwd: zod.string().min(1),
+    newPwd: zod.string().min(6, '密码至少6位'),
+});
+
+/**
  * 前端批量保存 schema（宽松版：允许 tpls/members/sub 可选）
  */
 const bulkSaveSchema = zod.object({
@@ -121,7 +129,7 @@ const bulkSaveSchema = zod.object({
     sub: zod.record(
         zod.record(zod.record(zod.record(zod.string())))
     ).optional(),
-}).strict();
+}).strip();
 
 module.exports = {
     zodValidate,
@@ -131,5 +139,6 @@ module.exports = {
     deleteSubmissionSchema,
     deleteTemplateSchema,
     memberSchema,
+    passwordChangeSchema,
     bulkSaveSchema,
 };
