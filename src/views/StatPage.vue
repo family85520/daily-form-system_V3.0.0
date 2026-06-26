@@ -231,8 +231,8 @@ onMounted(() => {
 .stat-filter-bar {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
   background: var(--sf);
   border: 1px solid var(--b);
   border-radius: var(--rl);

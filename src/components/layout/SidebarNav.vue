@@ -136,9 +136,14 @@ const progressDays = computed(() => {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 18px;
+  font-size: var(--text-lg);
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
+}
+
+.brand-icon:hover {
+  transform: scale(1.05);
 }
 
 .sidebar-section {

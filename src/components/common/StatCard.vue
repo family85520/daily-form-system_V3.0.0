@@ -1,16 +1,16 @@
 <template>
   <n-card size="small" :bordered="false" :style="cardStyle">
-    <n-stat :label="label" :value="value" :value-style="{ color }">
+    <n-statistic :label="label" :value="value" :value-style="{ color }">
       <template #suffix v-if="suffix">
         <span style="font-size: 13px; color: var(--n-text-color-3)">{{ suffix }}</span>
       </template>
-    </n-stat>
+    </n-statistic>
   </n-card>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { NCard, NStat } from 'naive-ui';
+import { NCard, NStatistic } from 'naive-ui';
 
 const props = defineProps<{
   label: string;

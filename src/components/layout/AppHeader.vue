@@ -104,7 +104,12 @@ const connText = computed(() => {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 16px;
+  font-size: var(--text-base);
+  transition: transform 0.2s;
+}
+
+.brand-icon:hover {
+  transform: rotate(15deg) scale(1.05);
 }
 
 .brand-text {
@@ -113,14 +118,14 @@ const connText = computed(() => {
 }
 
 .header-title {
-  font-size: 16px;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--t);
   font-family: var(--font-display);
 }
 
 .header-sub {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--tm);
 }
 
@@ -131,13 +136,18 @@ const connText = computed(() => {
 }
 
 .conn-badge {
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding: 4px 12px;
   border-radius: var(--r-pill);
   font-weight: 500;
   display: flex;
   align-items: center;
   gap: 5px;
+  transition: all 0.2s;
+}
+
+.conn-badge:hover {
+  opacity: 0.8;
 }
 
 .conn-dot {

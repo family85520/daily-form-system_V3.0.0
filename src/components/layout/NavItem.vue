@@ -36,15 +36,16 @@ const handleClick = () => {
   padding: 10px 12px;
   border-radius: var(--r);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: var(--text-base);
   font-weight: 500;
+  position: relative;
 }
 
 .nav-icon {
   width: 20px;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--text-lg);
   flex-shrink: 0;
 }
 
@@ -65,5 +66,10 @@ const handleClick = () => {
 .nav-item-inactive:hover {
   background: var(--card-bg);
   color: var(--p);
+  transform: translateX(2px);
+}
+
+.nav-item-inactive:active {
+  transform: scale(0.98);
 }
 </style>

@@ -119,10 +119,10 @@ function navigateTo(name: string) {
   flex-direction: column;
   align-items: center;
   padding: 8px 0 6px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--tm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   background: none;
   font-weight: 500;
@@ -135,6 +135,10 @@ function navigateTo(name: string) {
   background: var(--p3);
 }
 
+.tab-item:active {
+  transform: scale(0.95);
+}
+
 .tab-icon {
   display: flex;
   align-items: center;
@@ -143,7 +147,7 @@ function navigateTo(name: string) {
   height: 32px;
   border-radius: 50%;
   margin-bottom: 2px;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tab-icon svg {
@@ -155,6 +159,7 @@ function navigateTo(name: string) {
   background: var(--gradient);
   color: #fff;
   box-shadow: var(--shadow-sm);
+  transform: scale(1.05);
 }
 
 .tab-item.active .tab-label {

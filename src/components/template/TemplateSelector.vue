@@ -98,15 +98,20 @@ onUnmounted(() => {
   border-radius: var(--r);
   padding: 6px 12px;
   color: #fff;
-  font-size: 13px;
+  font-size: var(--text-sm);
   cursor: pointer;
   font-family: inherit;
   width: 100%;
-  transition: background 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .tpl-btn:hover {
   background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+}
+
+.tpl-btn:active {
+  transform: scale(0.97);
 }
 
 .tpl-count {
@@ -116,8 +121,8 @@ onUnmounted(() => {
 
 .tpl-arrow {
   margin-left: auto;
-  transition: transform 0.15s;
-  font-size: 10px;
+  transition: transform 0.2s;
+  font-size: var(--text-xs);
 }
 
 .tpl-btn.open .tpl-arrow {
@@ -136,6 +141,18 @@ onUnmounted(() => {
   z-index: 9999;
   max-height: 280px;
   overflow-y: auto;
+  animation: slide-down 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .tpl-option {
@@ -143,21 +160,30 @@ onUnmounted(() => {
   align-items: center;
   gap: 10px;
   padding: 12px 16px;
-  font-size: 13px;
+  font-size: var(--text-sm);
   color: var(--t);
   cursor: pointer;
   transition: background 0.15s;
   border-bottom: 1px solid var(--bl);
 }
 
+.tpl-option:last-child {
+  border-bottom: none;
+}
+
 .tpl-option:hover {
   background: var(--bl);
+  padding-left: 20px;
 }
 
 .tpl-option.active {
   background: var(--p3);
   color: var(--p);
   font-weight: 600;
+}
+
+.tpl-option.active:hover {
+  padding-left: 20px;
 }
 
 .tpl-icon {
@@ -169,10 +195,15 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 700;
   flex-shrink: 0;
   box-shadow: var(--shadow-sm);
+  transition: transform 0.2s;
+}
+
+.tpl-option:hover .tpl-icon {
+  transform: scale(1.1);
 }
 
 .tpl-info {
@@ -188,14 +219,19 @@ onUnmounted(() => {
 }
 
 .tpl-meta {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--tm);
   margin-top: 2px;
 }
 
 .tpl-check {
   color: var(--ok);
-  font-size: 16px;
+  font-size: var(--text-lg);
+  transition: transform 0.2s;
+}
+
+.tpl-option:hover .tpl-check {
+  transform: scale(1.2);
 }
 
 .tpl-option-all {

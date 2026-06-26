@@ -194,8 +194,8 @@ function onReset() {
 
 .stat-bar {
   display: flex;
-  gap: 10px;
-  margin-bottom: 14px;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
 }
 
 .stat-card {
@@ -207,8 +207,17 @@ function onReset() {
   padding: 16px 12px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
+}
+
+.stat-card:hover:not(.disabled) {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+.stat-card:active:not(.disabled) {
+  transform: scale(0.97);
 }
 
 .stat-card.disabled {
@@ -269,12 +278,12 @@ function onReset() {
 }
 
 .stat-num {
-  font-size: 26px;
+  font-size: var(--text-2xl);
   font-weight: 700;
 }
 
 .stat-label {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--tm);
   margin-top: 2px;
   font-weight: 500;
@@ -285,14 +294,14 @@ function onReset() {
   border: 1px solid var(--b);
   border-radius: var(--rl);
   padding: 18px;
-  margin-bottom: 14px;
+  margin-bottom: var(--sp-4);
   box-shadow: var(--shadow-sm);
 }
 
 .cd-title {
-  font-size: 14px;
+  font-size: var(--text-base);
   font-weight: 600;
-  margin-bottom: 12px;
+  margin-bottom: var(--sp-3);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -312,7 +321,7 @@ function onReset() {
   padding: 10px 12px;
   border: 2px solid var(--b);
   border-radius: var(--r);
-  font-size: 14px;
+  font-size: var(--text-base);
   font-family: inherit;
   color: var(--t);
   background: var(--sf);
@@ -324,6 +333,11 @@ function onReset() {
   appearance: none;
   outline: none;
   transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.user-select:focus {
+  border-color: var(--p);
+  box-shadow: 0 0 0 3px rgba(38, 166, 154, 0.15);
 }
 
 .user-select:focus {

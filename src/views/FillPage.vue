@@ -507,7 +507,7 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
 <style scoped>
 /* 页面标题 */
 .page-header {
-  margin-bottom: 20px;
+  margin-bottom: var(--sp-5);
 }
 
 .heading-section {
@@ -555,14 +555,14 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
 
 .empty-icon {
   font-size: 56px;
-  margin-bottom: 16px;
+  margin-bottom: var(--sp-4);
   display: block;
 }
 
 .tpl-grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 14px;
+  gap: var(--sp-3);
 }
 
 @media (min-width: 768px) {
@@ -640,7 +640,7 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   font-size: 12px;
   color: var(--tm);
   display: flex;
-  gap: 14px;
+  gap: var(--sp-3);
   flex-wrap: wrap;
 }
 

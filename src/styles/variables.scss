@@ -81,6 +81,30 @@
   --tab-bar-height: 64px;
   --header-height: 56px;
   --sidebar-width: 220px;
+
+  // ===== 间距体系（4px 基线） =====
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-7: 28px;
+  --sp-8: 32px;
+
+  // ===== 字体尺度 =====
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 14px;
+  --text-md: 15px;
+  --text-lg: 17px;
+  --text-xl: 20px;
+  --text-2xl: 24px;
+
+  // ===== 行高 =====
+  --leading-tight: 1.35;
+  --leading-normal: 1.6;
+  --leading-relaxed: 1.75;
 }
 
 // =============================================

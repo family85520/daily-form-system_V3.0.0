@@ -190,13 +190,17 @@ function onResetRow() {
   margin-bottom: 12px;
   overflow: hidden;
   border-left: 4px solid var(--b);
-  transition: all 0.25s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-sm);
 }
 
 .record-card:hover {
   box-shadow: var(--shadow-hover);
   transform: translateY(-2px);
+}
+
+.record-card:active {
+  transform: scale(0.99);
 }
 
 .record-card.done { border-left-color: var(--ok); }
@@ -219,7 +223,7 @@ function onResetRow() {
 .card-title-area { flex: 1; min-width: 0; }
 
 .card-title {
-  font-size: 15px;
+  font-size: var(--text-md);
   font-weight: 600;
   color: var(--t);
   white-space: nowrap;
@@ -228,7 +232,7 @@ function onResetRow() {
 }
 
 .card-summary {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--tm);
   margin-top: 3px;
   overflow: hidden;
@@ -236,9 +240,9 @@ function onResetRow() {
 }
 
 .card-arrow {
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--tm);
-  transition: transform 0.25s;
+  transition: transform 0.2s;
   flex-shrink: 0;
   margin-left: 8px;
 }
@@ -249,24 +253,24 @@ function onResetRow() {
   display: inline-block;
   padding: 3px 12px;
   border-radius: var(--r-pill);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 600;
   margin-left: 8px;
   letter-spacing: 0.2px;
 }
 
 .tag-ok { background: var(--ok); color: #fff; }
-.tag-warn { background: var(--w); color: #fff; }
+.tag-warn { background: #F59E0B; color: #78350F; }
 .tag-error { background: var(--d); color: #fff; }
 .tag-info { background: var(--p); color: #fff; }
 
 .card-progress {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--sp-2);
   padding: 10px 16px;
   background: var(--bl);
-  font-size: 12px;
+  font-size: var(--text-sm);
   color: var(--tm);
   border-top: 1px solid var(--b);
 }

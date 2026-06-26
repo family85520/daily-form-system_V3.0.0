@@ -30,9 +30,9 @@ import AppTabBar from './AppTabBar.vue';
 .app-main {
   position: relative;
   margin-left: var(--sidebar-width);
-  padding: 24px 28px;
-  padding-top: calc(var(--header-height) + 24px);
-  padding-bottom: 24px;
+  padding: var(--sp-6) var(--sp-8);
+  padding-top: calc(var(--header-height) + var(--sp-6));
+  padding-bottom: var(--sp-6);
   min-height: 100vh;
   animation: fade-in 0.3s ease;
   z-index: 1;
@@ -51,25 +51,25 @@ import AppTabBar from './AppTabBar.vue';
 @media (max-width: 767px) {
   .app-main {
     margin-left: 0;
-    padding: 16px;
-    padding-top: calc(var(--header-height) + 16px);
-    padding-bottom: calc(var(--tab-bar-height) + 16px);
+    padding: var(--sp-4);
+    padding-top: calc(var(--header-height) + var(--sp-4));
+    padding-bottom: calc(var(--tab-bar-height) + var(--sp-4));
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
   .app-main {
     margin-left: var(--sidebar-width);
-    padding: 20px 24px;
-    padding-top: calc(var(--header-height) + 20px);
+    padding: var(--sp-5) var(--sp-6);
+    padding-top: calc(var(--header-height) + var(--sp-5));
   }
 }
 
 @media (min-width: 1024px) {
   .app-main {
     margin-left: var(--sidebar-width);
-    padding: 28px 32px;
-    padding-top: calc(var(--header-height) + 28px);
+    padding: var(--sp-7) var(--sp-8);
+    padding-top: calc(var(--header-height) + var(--sp-7));
   }
 }
 </style>
