@@ -42,35 +42,38 @@ node scripts/snapshot-all.js restore <snapshot-name>
 ## Architecture
 
 ### Layout Structure (Desktop vs Mobile)
-- **Desktop (≥768px)**: Fixed left sidebar (`SidebarNav.vue`) + fixed top header (`AppHeader.vue`) + scrollable main content (`AppLayout.vue` with `margin-left: var(--sidebar-width)`)
+- **Desktop (≥768px)**: Fixed left sidebar (`SidebarNav.vue`, 220px) + fixed top header (`AppHeader.vue`, 56px) + scrollable main content (`AppLayout.vue` with `margin-left: var(--sidebar-width)`)
 - **Mobile (<768px)**: Fixed top header only + fixed bottom tab bar (`AppTabBar.vue`)
 - All pages render through `AppLayout` wrapper which injects the layout chrome
+- FillPage desktop layout: sidebar (`FillSidebar.vue`) and main (`FillMain.vue`) both use `position: fixed` to prevent scrolling interference
 
 ### Dual-Track Frontend
 The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) or `public/` (V1, legacy HTML) based on `FRONTEND_VERSION` env var or the runtime API `POST /api/admin/switch-frontend {version: "v1"|"v2"}`. Static file caching is disabled to support instant switching.
 
 ### Frontend (Vue 3 + TypeScript)
 - **Entry**: `src/main.ts` → `src/App.vue` → 4 routes via Vue Router
-- **State**: Pinia stores (`useAuthStore` for auth, `useDataStore` for all app data)
+- **Routing**: `/` (FillPage), `/history` (HistoryPage), `/stat` (StatPage, auth-gated), `/admin` (AdminPage, password-gated)
+- **State**: Pinia stores (`useAuthStore` for auth/token, `useDataStore` for all app data)
 - **API layer**: `src/api/` — Axios instance with token injection interceptor and 401 auto-redirect
 - **Composables** (`src/composables/`): Business logic extracted into reusable units:
   - `useInheritance` — 3-tier data inheritance (today → most recent history → base template data). Row-level only; never mixes fields across different dates.
   - `useValidation` — Field validation + rule engine (11 operators, 13 action types)
-  - `useSequence` — Auto-increment sequence fields
+  - `useSequence` — Auto-increment sequence fields (max value + 1 across all data)
   - `useFormSessionEdits` — Tracks user-edited fields during a form session via a module-level `Map`; renders edited cells differently from inherited cells.
   - `useToast`, `useConfirm`, `useLoading` — UI utilities via Naive UI discrete API
-- **Views**: `FillPage` (default `/`), `HistoryPage`, `StatPage` (password-gated), `AdminPage` (password-gated)
 - **Path alias**: `@` maps to `src/` (configured in both vite.config.ts and vitest.config.ts)
+- **Styling**: SCSS with CSS custom properties (`:root` → `src/styles/variables.scss`), global reset in `src/styles/global.scss`
 
 ### Backend (Express + sql.js)
 - **Entry**: `server.js` → initializes DB, runs migrations, starts Express
-- **Database**: SQLite via sql.js (WASM, no native deps). In-memory with 100ms debounced file flush to `data/app.db`.
-- **Auth**: In-memory token sessions (30min sliding expiry). `requireAuth` middleware for admin ops, `optionalAuth` for general reads.
+- **Database**: SQLite via sql.js (WASM, no native deps). In-memory with 100ms debounced file flush to `data/app.db`. Auto-save on process exit.
+- **Auth**: In-memory token sessions (30min sliding expiry, 500min hard cap). `requireAuth` middleware for admin ops, `optionalAuth` for general reads. Token passed via `x-auth-token` header.
 - **Routes** (`src/routes/`): auth, data, template, submission, member, export, audit
 - **Middleware pipeline**: security headers → rate limiting (per-endpoint) → auth → validation → error handler
 - **Config**: `src/config/index.js` — port, DB path, session duration, rate limits, backup intervals, default password
 - **Validation**: `src/middleware/zodValidate.js` — Zod-based request body validation middleware; `src/middleware/validate.js` — legacy field-level validation
 - **Audit**: `src/constants/auditActions.js` — typed action constants; `src/db/backup.js` — auto-backup + audit cleanup
+- **Services**: `src/services/session.js` — session validation logic
 
 ### Key Data Model
 - **Template**: defines columns (type/required/constraints) + base rows + field rules
@@ -78,6 +81,7 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
 - **Members**: tracked per template
 - **Field Rules**: condition (field + operator + value) → action (require/forbid/copy/validate_match/compare)
 - **filterField**: Template-level field that assigns rows to specific fillers (e.g., "责任人" column determines which user fills which rows)
+- **DB Tables**: `templates`, `submissions` (JSON data column), `members`, `audit_log`
 
 ### Stats Calculation (Important)
 Statistics modules (`StatOverview.vue`, `StatFillAnalysis.vue`) calculate by **entry count** (each template row = 1 entry), not by field count. They only count entries for **actual fillers** determined by `filterField` — each user only fills rows where their name matches the filterField column. See `getUserRowIndices()` helper function.

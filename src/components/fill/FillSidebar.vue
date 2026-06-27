@@ -181,15 +181,26 @@ function onReset() {
   max-width: 100%;
 }
 
-/* 桌面端：固定位置 */
+/* 桌面端：fixed 固定位置，距视口左边 260px（导航220 + 间距40），永不随滚动移动 */
 @media (min-width: 768px) {
   .fill-sidebar {
-    position: sticky;
-    top: 130px;
-    align-self: start;
-    width: auto;
-    max-width: none;
-    min-height: 540px;
+    position: fixed;
+    top: calc(var(--header-height) + var(--sp-6));
+    left: 260px;
+    width: 340px;
+    z-index: 10;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fill-sidebar {
+    width: 380px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .fill-sidebar {
+    width: 380px;
   }
 }
 

@@ -530,20 +530,42 @@ function getRowTitle(tpl: Template, row: Record<string, string> | undefined): st
   gap: 16px;
 }
 
-/* 桌面端：左右结构，sidebar 固定 */
+/* 桌面端：sidebar fixed 在 260px，main fixed 在 640px，间距 40px */
 @media (min-width: 768px) {
   .fill-layout {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 20px;
-    align-items: start;
-    min-height: calc(100vh - 180px);
+    /* 不占流，纯定位容器 */
+    height: calc(100vh - var(--sp-6) - var(--header-height) - var(--sp-6));
+  }
+
+  /* sidebar：fixed，距视口左边 260px */
+  .fill-layout > *:first-child {
+    position: fixed;
+    top: calc(var(--header-height) + var(--sp-6));
+    left: 260px;
+    width: 340px;
+    bottom: var(--sp-6);
+    z-index: 10;
+  }
+
+  /* main：fixed，sidebar 右侧 + 40px 间距 */
+  .fill-layout > *:nth-child(2) {
+    position: fixed;
+    top: calc(var(--header-height) + var(--sp-6));
+    left: 640px;
+    bottom: var(--sp-6);
+    right: 0;
+    overflow-y: auto;
+    min-height: 0;
+    z-index: 5;
   }
 }
 
 @media (min-width: 1024px) {
-  .fill-layout {
-    grid-template-columns: 380px 1fr;
+  .fill-layout > *:first-child {
+    width: 380px;
+  }
+  .fill-layout > *:nth-child(2) {
+    left: 680px;
   }
 }
 
