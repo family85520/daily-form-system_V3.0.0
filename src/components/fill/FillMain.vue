@@ -82,6 +82,8 @@ function collapseAll() {
 <style scoped>
 .fill-main {
   padding-bottom: 45px;
+  /* 确保在 grid cell 的 overflow 容器内正常渲染 */
+  min-height: 0;
 }
 
 .action-bar {
