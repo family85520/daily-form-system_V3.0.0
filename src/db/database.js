@@ -46,7 +46,47 @@ exitSignals.forEach(sig => {
     });
 });
 
-// 查询辅助函数
+// ===== sql.js Promise 封装 =====
+// sql.js 的 db.run/db.prepare 是回调风格的，包装为 Promise 以支持 await
+
+/**
+ * 将 db.run() 包装为 Promise
+ * db.run 的回调签名: function(err) { this.changes; }
+ */
+function runSQL(sql, params) {
+    return new Promise((resolve, reject) => {
+        try {
+            db.run(sql, params, function(err) {
+                if (err) reject(err);
+                else resolve(this); // this.changes 可用
+            });
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+/**
+ * 将 db.prepare().step() 包装为 Promise
+ */
+function execSQL(sql, params) {
+    return new Promise((resolve, reject) => {
+        try {
+            const stmt = db.prepare(sql);
+            if (params) stmt.bind(params);
+            const results = [];
+            while (stmt.step()) {
+                results.push(stmt.getAsObject());
+            }
+            stmt.free();
+            resolve(results);
+        } catch (err) {
+            reject(err);
+        }
+    });
+}
+
+// 查询辅助函数（保持向后兼容，同时提供 Promise 版本）
 function queryOne(sql, params) {
     if (!db) return null;
     try {
@@ -82,14 +122,14 @@ function queryAll(sql, params) {
     }
 }
 
-// 事务封装
+// 事务封装（修复：所有 db.run 都 await）
 async function withTransaction(fn) {
     try {
-        db.run("BEGIN TRANSACTION");
+        await runSQL("BEGIN TRANSACTION");
         await fn();
-        db.run("COMMIT");
+        await runSQL("COMMIT");
     } catch (err) {
-        db.run("ROLLBACK");
+        await runSQL("ROLLBACK");
         throw err;
     }
 }
@@ -156,10 +196,19 @@ async function initDB() {
             console.log('[数据库] 补充列检查跳过:', e.message);
         }
 
-        db.run("CREATE INDEX IF NOT EXISTS idx_audit_action ON audit_log(action)");
-        db.run("CREATE INDEX IF NOT EXISTS idx_audit_category ON audit_log(category)");
-        db.run("CREATE INDEX IF NOT EXISTS idx_audit_time ON audit_log(time)");
         console.log('[数据库] 初始化完成');
+
+        // 创建 sessions 持久化表
+        db.run(`
+            CREATE TABLE IF NOT EXISTS sessions (
+                token TEXT PRIMARY KEY,
+                ip TEXT DEFAULT '',
+                created_at INTEGER NOT NULL,
+                expires_at INTEGER NOT NULL
+            )
+        `);
+        db.run("CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at)");
+
         return db;
     } catch (err) {
         console.error('[数据库] 初始化失败:', err);
@@ -213,6 +262,8 @@ module.exports = {
     queryOne,
     queryAll,
     withTransaction,
+    runSQL,
+    execSQL,
     writeAuditLog,
     getTemplateName,
     dbPath,

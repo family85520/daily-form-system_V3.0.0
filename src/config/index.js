@@ -12,8 +12,8 @@ module.exports = {
     DB_FILENAME: 'app.db',
 
     // 会话配置
-    SESSION_DURATION: 30 * 60 * 1000, // 30分钟
-    SESSION_HARD_CAP: 500,
+    SESSION_DURATION: 30 * 60 * 1000, // 30分钟滑动窗口
+    SESSION_HARD_CAP: 500, // 内存 Map 最大会话数
 
     // 速率限制配置
     RATE_LIMIT: {
@@ -41,6 +41,7 @@ module.exports = {
     AUDIT_CLEANUP_INTERVAL_MS: 86400000, // 24小时
 
     // 密码配置
+    MIN_PASSWORD_LENGTH: 6,
     SALT_ROUNDS: 10,
     DEFAULT_PASSWORD: '1234',
 

@@ -2,11 +2,13 @@
 // 每日数据填报系统 — 入口文件（支持双轨并行）
 
 const express = require('express');
+const cors = require('cors');
 const path = require('path');
 const config = require('./src/config');
 const { initDB } = require('./src/db/database');
 const { migrateData } = require('./src/db/migrations');
 const { startAutoBackup, startAuditCleanup } = require('./src/db/backup');
+const { loadSessionsFromDB } = require('./src/services/session');
 const { securityHeaders } = require('./src/middleware/security');
 const errorHandler = require('./src/middleware/errorHandler');
 
@@ -37,6 +39,7 @@ function getIndexFile() {
 }
 
 // ===== 中间件 =====
+app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(securityHeaders);
 
@@ -74,6 +77,11 @@ app.use('/api', memberRoutes);
 app.use('/api', exportRoutes);
 app.use('/api', auditRoutes);
 
+// ===== 健康检查端点 =====
+app.get('/health', (req, res) => {
+    res.json({ status: 'ok', timestamp: Date.now() });
+});
+
 // ===== SPA fallback（动态评估） =====
 app.get('/{*path}', (req, res) => {
     res.sendFile(getIndexFile());
@@ -89,6 +97,9 @@ async function start() {
         await initDB();
         await migrateData();
 
+        // 从数据库加载活跃会话
+        loadSessionsFromDB();
+
         startAutoBackup();
         startAuditCleanup();
 
@@ -99,7 +110,6 @@ async function start() {
             console.log('  ==========================================');
             console.log('  本机访问: http://localhost:' + config.PORT);
             console.log('  前端版本: ' + frontendVersion + ' (v1=原版, v2=Vue3)');
-            console.log('  默认密码: ' + config.DEFAULT_PASSWORD);
             console.log('  数据库:   ./data/app.db');
             console.log('  备份目录: ./data/backups/');
             console.log('  ==========================================');

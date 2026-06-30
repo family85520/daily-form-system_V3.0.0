@@ -5,13 +5,21 @@ const { writeAuditLog } = require('../db/database');
 const express = require('express');
 const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
-const { queryAll, getDB, saveDB, withTransaction } = require('../db/database');
+const { queryAll, getDB, saveDB, withTransaction, runSQL } = require('../db/database');
 const { zodValidate, templateSchema, submissionSchema, bulkSaveSchema } = require('../middleware/zodValidate');
+const { rowToTemplate, rowToSubmission, getAllSubmissions } = require('../db/queryHelpers');
 
 // --- 数据读取（无需认证） ---
 router.get('/data', (req, res) => {
     try {
-        res.json({ success: true, data: buildFullData() });
+        const since = req.query.since;
+        if (since) {
+            // 增量更新：只返回 since 时间戳之后更新的数据
+            res.json({ success: true, data: buildIncrementalData(parseInt(since, 10)) });
+        } else {
+            // 全量数据
+            res.json({ success: true, data: buildFullData() });
+        }
     } catch (err) {
         console.error('获取数据失败:', err);
         res.status(500).json({ success: false, error: '获取数据失败' });
@@ -28,25 +36,25 @@ router.post('/data', writeRateLimit(30, 60000), zodValidate(bulkSaveSchema), asy
 
             // 模板写入
             if (Array.isArray(tpls)) {
-                tpls.forEach(tpl => {
-                    if (!tpl.id) return;
+                for (const tpl of tpls) {
+                    if (!tpl.id) continue;
                     const tid = String(tpl.id);
-                    if (typeof tpl.name !== 'string' || tpl.name.length > 200) return;
-                    if (!Array.isArray(tpl.columns)) return;
+                    if (typeof tpl.name !== 'string' || tpl.name.length > 200) continue;
+                    if (!Array.isArray(tpl.columns)) continue;
 
                     const existing = queryOne("SELECT id FROM templates WHERE id = ?", [tid]);
                     if (existing) {
-                        db.run(
+                        await runSQL(
                             "UPDATE templates SET name=?, columns=?, rows=?, filter_field=?, title_fields=?, rules=?, updated_at=datetime('now','localtime') WHERE id=?",
                             [tpl.name, JSON.stringify(tpl.columns), JSON.stringify(tpl.rows || []), tpl.filterField || '', JSON.stringify(tpl.titleFields || []), JSON.stringify(tpl.rules || []), tid]
                         );
                     } else {
-                        db.run(
+                        await runSQL(
                             "INSERT INTO templates (id, name, columns, rows, filter_field, title_fields, rules) VALUES (?,?,?,?,?,?,?)",
                             [tid, tpl.name, JSON.stringify(tpl.columns), JSON.stringify(tpl.rows || []), tpl.filterField || '', JSON.stringify(tpl.titleFields || []), JSON.stringify(tpl.rules || [])]
                         );
                     }
-                });
+                }
             }
 
             // 成员写入
@@ -55,16 +63,16 @@ router.post('/data', writeRateLimit(30, 60000), zodValidate(bulkSaveSchema), asy
                     if (!Array.isArray(memberList)) continue;
                     const tid = String(tplId);
                     const existingMembers = getMembersByTemplate(tid);
-                    memberList.forEach(m => {
+                    for (const m of memberList) {
                         if (m && String(m).trim() && !existingMembers.includes(String(m).trim())) {
-                            try { db.run("INSERT INTO members (template_id, name) VALUES (?, ?)", [tid, String(m).trim()]); } catch (e) { /* ignore */ }
+                            try { await runSQL("INSERT INTO members (template_id, name) VALUES (?, ?)", [tid, String(m).trim()]); } catch (e) { /* ignore */ }
                         }
-                    });
-                    existingMembers.forEach(m => {
+                    }
+                    for (const m of existingMembers) {
                         if (!memberList.includes(m)) {
-                            db.run("DELETE FROM members WHERE template_id = ? AND name = ?", [tid, m]);
+                            await runSQL("DELETE FROM members WHERE template_id = ? AND name = ?", [tid, m]);
                         }
-                    });
+                    }
                 }
             }
 
@@ -77,11 +85,11 @@ router.post('/data', writeRateLimit(30, 60000), zodValidate(bulkSaveSchema), asy
                         for (const [user, rows] of Object.entries(users)) {
                             for (const [ri, data] of Object.entries(rows)) {
                                 if (!data || typeof data !== 'object') continue;
-                                db.run(
+                                await runSQL(
                                     "DELETE FROM submissions WHERE template_id=? AND date=? AND user_name=? AND row_index=?",
                                     [tid, date, user, parseInt(ri)]
                                 );
-                                db.run(
+                                await runSQL(
                                     "INSERT INTO submissions (template_id, date, user_name, row_index, data, updated_at) VALUES (?,?,?,?,?,datetime('now','localtime'))",
                                     [tid, date, user, parseInt(ri), JSON.stringify(data)]
                                 );
@@ -116,6 +124,59 @@ function buildFullData() {
     };
 }
 
+/**
+ * 增量数据查询：只返回 since 时间戳之后更新的数据
+ * 通过查询 templates.updated_at 和 submissions.updated_at 字段过滤
+ */
+function buildIncrementalData(since) {
+    const result = {
+        tpls: [],
+        members: {},
+        sub: {}
+    };
+
+    try {
+        // 查询更新的模板
+        const updatedTpls = queryAll(
+            "SELECT * FROM templates WHERE updated_at > datetime(?) OR created_at > datetime(?)",
+            [new Date(since).toISOString(), new Date(since).toISOString()]
+        );
+        result.tpls = updatedTpls.map(rowToTemplate);
+
+        // 查询更新的提交
+        const updatedSubs = queryAll(
+            "SELECT * FROM submissions WHERE updated_at > datetime(?)",
+            [new Date(since).toISOString()]
+        );
+        updatedSubs.forEach(row => {
+            const s = rowToSubmission(row);
+            if (!result.sub[s.templateId]) result.sub[s.templateId] = {};
+            if (!result.sub[s.templateId][s.date]) result.sub[s.templateId][s.date] = {};
+            if (!result.sub[s.templateId][s.date][s.userName]) result.sub[s.templateId][s.date][s.userName] = {};
+            result.sub[s.templateId][s.date][s.userName][s.rowIndex] = s.data;
+        });
+
+        // 查询涉及的成员
+        const tplIds = result.tpls.map(t => t.id);
+        if (tplIds.length) {
+            const placeholders = tplIds.map(() => '?').join(',');
+            const memberRows = queryAll(
+                "SELECT template_id, name FROM members WHERE template_id IN (" + placeholders + ")",
+                tplIds
+            );
+            memberRows.forEach(r => {
+                const tplId = String(r.template_id);
+                if (!result.members[tplId]) result.members[tplId] = [];
+                result.members[tplId].push(r.name);
+            });
+        }
+    } catch (err) {
+        console.error('增量数据查询失败:', err);
+    }
+
+    return result;
+}
+
 function getAllTemplates() {
     try {
         const rows = queryAll("SELECT * FROM templates ORDER BY created_at DESC");
@@ -124,19 +185,6 @@ function getAllTemplates() {
         console.error('读取模板列表失败:', err);
         return [];
     }
-}
-
-function rowToTemplate(row) {
-    if (!row) return null;
-    return {
-        id: String(row.id),
-        name: row.name || '未命名模板',
-        columns: JSON.parse(row.columns || '[]'),
-        rows: JSON.parse(row.rows || '[]'),
-        filterField: row.filter_field || '',
-        titleFields: JSON.parse(row.title_fields || '[]'),
-        rules: JSON.parse(row.rules || '[]')
-    };
 }
 
 function getAllMembers() {
@@ -163,34 +211,6 @@ function getMembersByTemplate(tplId) {
         console.error('读取模板成员失败:', err);
         return [];
     }
-}
-
-function getAllSubmissions() {
-    try {
-        const rows = queryAll("SELECT * FROM submissions");
-        const result = {};
-        rows.forEach(row => {
-            const s = rowToSubmission(row);
-            if (!result[s.templateId]) result[s.templateId] = {};
-            if (!result[s.templateId][s.date]) result[s.templateId][s.date] = {};
-            if (!result[s.templateId][s.date][s.userName]) result[s.templateId][s.date][s.userName] = {};
-            result[s.templateId][s.date][s.userName][s.rowIndex] = s.data;
-        });
-        return result;
-    } catch (err) {
-        console.error('读取提交数据失败:', err);
-        return {};
-    }
-}
-
-function rowToSubmission(row) {
-    return {
-        templateId: String(row.template_id),
-        date: row.date,
-        userName: row.user_name,
-        rowIndex: row.row_index,
-        data: JSON.parse(row.data || '{}')
-    };
 }
 
 module.exports = router;

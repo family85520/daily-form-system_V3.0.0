@@ -106,6 +106,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import type { Column, ValueSource } from '@/types';
+import { normalizeDate } from '@/utils/date';
 
 const props = withDefaults(defineProps<{
   /** 字段定义 */
@@ -145,10 +146,7 @@ function onInput(e: Event) {
 // 日期字段标准化：YYYY/MM/DD → YYYY-MM-DD，确保始终返回合法字符串
 const displayValue = computed(() => {
   if (props.column.type === 'date') {
-    const raw = props.modelValue ?? '';
-    if (!raw) return '';
-    const v = raw.replace(/\//g, '-');
-    return /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : '';
+    return normalizeDate(props.modelValue);
   }
   return props.modelValue ?? '';
 });

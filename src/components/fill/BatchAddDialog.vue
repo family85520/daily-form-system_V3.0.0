@@ -174,7 +174,8 @@ async function onSave() {
       if (lineErrors.length) {
         allErrors.push(...lineErrors);
       } else {
-        validRows.push({ row: newRow, ri: startIdx + validRows.length });
+        // 使用 startIdx + lineIdx 作为稳定索引，不因跳过无效行而错位
+        validRows.push({ row: newRow, ri: startIdx + lineIdx });
       }
     });
 
@@ -189,8 +190,8 @@ async function onSave() {
       return;
     }
 
-    validRows.forEach(item => {
-      tpl.rows!.push(item.row);
+    // 先准备新行数据（暂不推入模板）
+    const newRows = validRows.map(item => {
       const submitData: Record<string, string> = {};
       editableCols.value.forEach(c => {
         if (ff && c.header === ff) {
@@ -199,15 +200,36 @@ async function onSave() {
           submitData[c.header] = item.row[c.header] || '';
         }
       });
-      dataStore.saveSubmission(tpl.id, cd, cu, { [String(item.ri)]: submitData });
+      return { row: item.row, submitData };
     });
 
+    // 先保存模板（添加新行）
+    if (!tpl.rows) tpl.rows = [];
+    newRows.forEach(item => {
+      tpl.rows.push(item.row);
+    });
+
+    try {
+      await dataStore.saveTemplate(tpl);
+    } catch (err) {
+      console.error('批量新增模板保存失败:', err);
+      toastWarning('批量新增失败：模板保存失败');
+      // 回滚本地模板数据
+      tpl.rows.splice(tpl.rows.length - newRows.length);
+      throw err;
+    }
+
+    // 模板保存成功后，再保存提交数据
+    for (const item of newRows) {
+      await dataStore.saveSubmission(tpl.id, cd, cu, { [String(item.row._idx)]: item.submitData });
+    }
+
+    // 确保用户在场成员列表中
     if (!dataStore.members[tpl.id]) dataStore.members[tpl.id] = [];
     if (dataStore.members[tpl.id].indexOf(cu) === -1) {
       dataStore.members[tpl.id].push(cu);
     }
-
-    await dataStore.saveTemplate(tpl);
+    await dataStore.saveMembers(tpl.id);
     toastSuccess('✓ 成功新增 ' + validRows.length + ' 条数据行');
     emit('saved');
     emit('close');

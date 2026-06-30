@@ -136,10 +136,11 @@ const rowTitle = computed(() => {
 
 watch(() => props.show, (val) => {
   if (val) {
+    // 从 store 中读取最新的已提交值（而非 effectiveValues，因为 effectiveValues 是 computed 可能缓存旧值）
+    const existing = existingRowData.value;
     const values: Record<string, string> = {};
     editableCols.value.forEach(col => {
-      const ev = props.effectiveValues[props.rowIndex]?.[col.header];
-      values[col.header] = ev ? ev.val : '';
+      values[col.header] = existing[col.header] || '';
     });
     fieldValues.value = values;
   }

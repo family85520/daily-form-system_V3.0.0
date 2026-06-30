@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
-import { useSequence } from '@/composables/useSequence';
+import { useSequence, clearCache } from '@/composables/useSequence';
 import { useDataStore } from '@/stores/useDataStore';
 import type { Template } from '@/types';
 
@@ -25,6 +25,7 @@ describe('useSequence', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia());
+    clearCache(''); // 清除序列缓存，避免跨测试用例污染
     dataStore = useDataStore();
     sequence = useSequence();
   });

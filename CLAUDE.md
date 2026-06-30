@@ -56,24 +56,28 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
 - **State**: Pinia stores (`useAuthStore` for auth/token, `useDataStore` for all app data)
 - **API layer**: `src/api/` — Axios instance with token injection interceptor and 401 auto-redirect
 - **Composables** (`src/composables/`): Business logic extracted into reusable units:
-  - `useInheritance` — 3-tier data inheritance (today → most recent history → base template data). Row-level only; never mixes fields across different dates.
+  - `useInheritance` — 3-tier data inheritance (today → most recent history → base template data). Row-level only; never mixes fields across different dates. `batchGetEffectiveRows()` reads `dataStore.sub` reactively so computed `effectiveValues` updates on field change.
   - `useValidation` — Field validation + rule engine (11 operators, 13 action types)
-  - `useSequence` — Auto-increment sequence fields (max value + 1 across all data)
-  - `useFormSessionEdits` — Tracks user-edited fields during a form session via a module-level `Map`; renders edited cells differently from inherited cells.
+  - `useSequence` — Auto-increment sequence fields with module-level cache (`tplId:header → maxVal`)
+  - `useFormSessionEdits` — Tracks user-edited fields via module-level `Map` with composite key `"userId:rowIndex:fieldHeader"`; `clearAll()` called on user switch/back navigation
   - `useToast`, `useConfirm`, `useLoading` — UI utilities via Naive UI discrete API
+- **Utils**: `src/utils/date.ts` — shared `normalizeDate()`, `isValidDate()`, `getCurrentDate()`
 - **Path alias**: `@` maps to `src/` (configured in both vite.config.ts and vitest.config.ts)
 - **Styling**: SCSS with CSS custom properties (`:root` → `src/styles/variables.scss`), global reset in `src/styles/global.scss`
+- **Theme**: Naive UI theme overrides in `src/theme/index.ts` use primary color `#26A69A`
 
 ### Backend (Express + sql.js)
 - **Entry**: `server.js` → initializes DB, runs migrations, starts Express
 - **Database**: SQLite via sql.js (WASM, no native deps). In-memory with 100ms debounced file flush to `data/app.db`. Auto-save on process exit.
-- **Auth**: In-memory token sessions (30min sliding expiry, 500min hard cap). `requireAuth` middleware for admin ops, `optionalAuth` for general reads. Token passed via `x-auth-token` header.
+- **Auth**: SQLite-persisted token sessions with in-memory cache for speed (30min sliding expiry, 500 hard cap). `requireAuth` middleware for admin ops, `optionalAuth` for general reads. Token passed via `x-auth-token` header. Sessions table created at startup, loaded on boot.
 - **Routes** (`src/routes/`): auth, data, template, submission, member, export, audit
 - **Middleware pipeline**: security headers → rate limiting (per-endpoint) → auth → validation → error handler
-- **Config**: `src/config/index.js` — port, DB path, session duration, rate limits, backup intervals, default password
+- **Config**: `src/config/index.js` — port, DB path, session duration, rate limits, backup intervals, default password, `MIN_PASSWORD_LENGTH: 6`
 - **Validation**: `src/middleware/zodValidate.js` — Zod-based request body validation middleware; `src/middleware/validate.js` — legacy field-level validation
 - **Audit**: `src/constants/auditActions.js` — typed action constants; `src/db/backup.js` — auto-backup + audit cleanup
-- **Services**: `src/services/session.js` — session validation logic
+- **Services**: `src/services/session.js` — session CRUD with SQLite persistence + memory cache
+- **Shared helpers**: `src/db/queryHelpers.js` — `rowToTemplate()`, `rowToSubmission()`, `getAllSubmissions()`, `getSubmissionsByTemplate()` (shared by data.js and export.js)
+- **Database utilities**: `src/db/database.js` — `runSQL()`/`execSQL()` Promise wrappers, `withTransaction()` (properly awaited), `queryOne()`, `queryAll()`
 
 ### Key Data Model
 - **Template**: defines columns (type/required/constraints) + base rows + field rules
@@ -81,7 +85,7 @@ The Express server (`server.js`) dynamically serves either `dist/` (V2, Vue 3) o
 - **Members**: tracked per template
 - **Field Rules**: condition (field + operator + value) → action (require/forbid/copy/validate_match/compare)
 - **filterField**: Template-level field that assigns rows to specific fillers (e.g., "责任人" column determines which user fills which rows)
-- **DB Tables**: `templates`, `submissions` (JSON data column), `members`, `audit_log`
+- **DB Tables**: `templates`, `submissions` (JSON data column), `members`, `audit_log`, `sessions`, `system`
 
 ### Stats Calculation (Important)
 Statistics modules (`StatOverview.vue`, `StatFillAnalysis.vue`) calculate by **entry count** (each template row = 1 entry), not by field count. They only count entries for **actual fillers** determined by `filterField` — each user only fills rows where their name matches the filterField column. See `getUserRowIndices()` helper function.

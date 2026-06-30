@@ -24,6 +24,9 @@ function optionalAuth(req, res, next) {
 
     if (session) {
         req.session = session;
+        req.user = session.userName; // 设置 req.user 用于审计日志
+    } else {
+        req.user = ''; // 未登录时设为空字符串
     }
     next();
 }

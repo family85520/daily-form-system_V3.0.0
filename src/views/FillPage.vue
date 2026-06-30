@@ -123,6 +123,8 @@ import { useDataStore } from '@/stores/useDataStore';
 import { useInheritance } from '@/composables/useInheritance';
 import { useValidation } from '@/composables/useValidation';
 import { useToast } from '@/composables/useToast';
+import { useFormSessionEdits } from '@/composables/useFormSessionEdits';
+import { normalizeDate, getCurrentDate } from '@/utils/date';
 import type { Template, EffectiveRow, StatFilterMode } from '@/types';
 import FillSidebar from '@/components/fill/FillSidebar.vue';
 import FillMain from '@/components/fill/FillMain.vue';
@@ -135,6 +137,7 @@ const dataStore = useDataStore();
 const { batchGetEffectiveRows, hasPrevData, hasTodayData } = useInheritance();
 const { validateAndApplyRules } = useValidation();
 const { toastSuccess, toastWarning } = useToast();
+const { clearAll: clearSessionEdits } = useFormSessionEdits();
 
 // ===== 页面状态 =====
 const currentStatFilter = ref<StatFilterMode>('all');
@@ -153,12 +156,7 @@ const searchText = ref('');
 
 
 // ===== 计算属性 =====
-const currentDate = computed(() => {
-  const d = new Date();
-  return d.getFullYear() + '-' +
-    String(d.getMonth() + 1).padStart(2, '0') + '-' +
-    String(d.getDate()).padStart(2, '0');
-});
+const currentDate = computed(() => getCurrentDate());
 
 const activeTemplate = computed(() => dataStore.activeTemplate);
 
@@ -288,6 +286,7 @@ function editableCount(tpl: Template): number {
 
 // ===== 事件处理 =====
 function onUserSelect(user: string) {
+  clearSessionEdits();
   searchText.value = '';
   dataStore.setCurrentFillUser(user || '');
   currentStatFilter.value = 'all';
@@ -304,6 +303,7 @@ function onSetFilter(filter: StatFilterMode) {
 }
 
 function onBack() {
+  clearSessionEdits();
   dataStore.setActiveTemplate('');
   dataStore.setCurrentFillUser('');
   filterOverride.value = null;
@@ -454,8 +454,7 @@ async function onSubmitAll() {
           }
           // 日期字段标准化
           if (c.type === 'date' && val) {
-            const n = val.replace(/\//g, '-');
-            val = /^\d{4}-\d{2}-\d{2}$/.test(n) ? n : '';
+            val = normalizeDate(val);
           }
           rd[c.header] = val;
           if (rd[c.header]) hasValue = true;

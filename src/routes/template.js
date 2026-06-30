@@ -7,9 +7,10 @@ const router = express.Router();
 const { writeRateLimit } = require('../middleware/security');
 const { queryOne, queryAll, getDB, saveDB } = require('../db/database');
 const { zodValidate, templateSchema, deleteTemplateSchema } = require('../middleware/zodValidate');
+const { requireAuth } = require('../middleware/auth');
 
-// --- 创建模板（无需认证） ---
-router.post('/template', writeRateLimit(20, 60000), zodValidate(templateSchema), function (req, res) {
+// --- 创建模板（需认证） ---
+router.post('/template', requireAuth, writeRateLimit(20, 60000), zodValidate(templateSchema), function (req, res) {
     try {
         const tpl = req.body;
         const tid = tpl.id ? String(tpl.id) : ('tpl_' + Date.now());
@@ -37,8 +38,8 @@ router.post('/template', writeRateLimit(20, 60000), zodValidate(templateSchema),
     }
 });
 
-// --- 更新模板（无需认证） ---
-router.put('/template/:id', writeRateLimit(30, 60000), zodValidate(templateSchema), function (req, res) {
+// --- 更新模板（需认证） ---
+router.put('/template/:id', requireAuth, writeRateLimit(30, 60000), zodValidate(templateSchema), function (req, res) {
     try {
         const tplId = String(req.params.id);
         const tpl = req.body;
@@ -85,8 +86,8 @@ router.put('/template/:id', writeRateLimit(30, 60000), zodValidate(templateSchem
     }
 });
 
-// --- 删除模板（无需认证） ---
-router.delete('/template/:id', writeRateLimit(10, 60000), zodValidate(deleteTemplateSchema), function (req, res) {
+// --- 删除模板（需认证） ---
+router.delete('/template/:id', requireAuth, writeRateLimit(10, 60000), zodValidate(deleteTemplateSchema), function (req, res) {
     try {
         const tplId = String(req.params.id);
         const db = getDB();
@@ -107,8 +108,8 @@ router.delete('/template/:id', writeRateLimit(10, 60000), zodValidate(deleteTemp
     }
 });
 
-// --- 导入 JSON 模板（无需认证） ---
-router.post('/import/json', (req, res) => {
+// --- 导入 JSON 模板（需认证） ---
+router.post('/import/json', requireAuth, function (req, res) {
     try {
         const tpl = req.body;
         if (!tpl || !tpl.columns || !tpl.rows) return res.json({ success: false, error: '格式不正确' });

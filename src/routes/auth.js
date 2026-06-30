@@ -10,6 +10,7 @@ const { rateLimit, writeRateLimit } = require('../middleware/security');
 const { queryOne, getDB, saveDB } = require('../db/database');
 const { zodValidate, passwordChangeSchema } = require('../middleware/zodValidate');
 const audit = require('../constants/auditActions');
+const { requireAuth } = require('../middleware/auth');
 
 // --- 密码验证路由（登录） ---
 router.post('/verify', async (req, res) => {
@@ -63,8 +64,8 @@ router.post('/logout', function (req, res) {
     res.json({ success: true });
 });
 
-// --- 修改密码 ---
-router.post('/password', writeRateLimit(10, 60000), zodValidate(passwordChangeSchema), async (req, res) => {
+// --- 修改密码（需认证） ---
+router.post('/password', requireAuth, writeRateLimit(10, 60000), zodValidate(passwordChangeSchema), async (req, res) => {
     try {
         const { oldPwd, newPwd } = req.body;
 
@@ -92,8 +93,8 @@ router.post('/password', writeRateLimit(10, 60000), zodValidate(passwordChangeSc
     }
 });
 
-// --- 重置数据 ---
-router.post('/reset', writeRateLimit(3, 300000), async (req, res) => {
+// --- 重置数据（需认证） ---
+router.post('/reset', requireAuth, writeRateLimit(3, 300000), async (req, res) => {
     try {
         const { password } = req.body;
         if (!password) {

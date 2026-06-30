@@ -40,6 +40,7 @@ import type { Template, EffectiveRow, ValueSource } from '@/types';
 import { useDataStore } from '@/stores/useDataStore';
 import { useSequence } from '@/composables/useSequence';
 import { useFormSessionEdits } from '@/composables/useFormSessionEdits';
+import { normalizeDate } from '@/utils/date';
 import FormField from '@/components/common/FormField.vue';
 
 const props = defineProps<{
@@ -115,8 +116,7 @@ function fieldValue(header: string): string {
   if (val) {
     const col = props.template.columns.find(c => c.header === header);
     if (col?.type === 'date') {
-      const n = val.replace(/\//g, '-');
-      val = /^\d{4}-\d{2}-\d{2}$/.test(n) ? n : '';
+      val = normalizeDate(val);
     }
   }
   return val;
@@ -125,9 +125,9 @@ function fieldValue(header: string): string {
 function valueSource(header: string): ValueSource | 'empty' {
   const existing = existingRowData.value;
   if (existing && Object.prototype.hasOwnProperty.call(existing, header)) {
-    const storeVal = (existing[header] || '').replace(/\//g, '-');
+    const storeVal = normalizeDate(existing[header]);
     const ev = effectiveRow.value[header];
-    const evVal = ev ? (ev.val || '').replace(/\//g, '-') : '';
+    const evVal = ev ? normalizeDate(ev.val) : '';
     if (storeVal === evVal) return ev ? ev.src : 'empty';
     return 'today';
   }
@@ -136,8 +136,8 @@ function valueSource(header: string): ValueSource | 'empty' {
 }
 
 function onFieldChange(header: string, value: string) {
-  // 记录用户主动编辑（用于校验时区分"用户输入"与"继承数据"）
-  recordEdit(props.rowIndex, header, value);
+  // 记录用户主动编辑（使用 currentUser 隔离不同用户的编辑记录）
+  recordEdit(props.currentUser, props.rowIndex, header, value);
 
   // 实时写入本地 store（不触发服务器保存）
   const tplId = props.template.id;
@@ -153,11 +153,7 @@ function onFieldChange(header: string, value: string) {
   let normalized = value;
   const col = props.template.columns.find(c => c.header === header);
   if (col?.type === 'date' && normalized) {
-    normalized = normalized.replace(/\//g, '-');
-    // 标准化后如果不符合合法日期格式，则视为空（防止浏览器占位符文本误写入）
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
-      normalized = '';
-    }
+    normalized = normalizeDate(normalized);
   }
 
   dataStore.sub[tplId][cd][cu][ri][header] = normalized;

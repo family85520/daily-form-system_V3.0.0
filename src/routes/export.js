@@ -7,6 +7,7 @@ const router = express.Router();
 const XLSX = require('xlsx');
 const { queryOne, queryAll } = require('../db/database');
 const { zodValidate, exportQuerySchema } = require('../middleware/zodValidate');
+const { rowToTemplate, rowToSubmission, getSubmissionsByTemplate } = require('../db/queryHelpers');
 
 // --- 导出 CSV（无需认证） ---
 router.get('/export/csv', zodValidate(exportQuerySchema), (req, res) => {
@@ -18,8 +19,7 @@ router.get('/export/csv', zodValidate(exportQuerySchema), (req, res) => {
         const filterUser = req.query.user || '';
         const filterDate = req.query.date || '';
 
-        const allSubs = getAllSubmissions();
-        const tplSub = allSubs[tplId] || {};
+        const tplSub = getSubmissionsByTemplate(tplId);
         const allCols = tpl.columns.filter(c => c.included);
 
         let csv = '\uFEFF日期,填报人';
@@ -83,8 +83,7 @@ router.get('/export/excel', zodValidate(exportQuerySchema), (req, res) => {
         const filterUser = req.query.user || '';
         const filterDate = req.query.date || '';
 
-        const allSubs = getAllSubmissions();
-        const tplSub = allSubs[tplId] || {};
+        const tplSub = getSubmissionsByTemplate(tplId);
         const allCols = tpl.columns.filter(c => c.included);
         const headers = allCols.map(c => c.header || '');
 
@@ -163,47 +162,6 @@ function getTemplateById(tplId) {
         console.error('读取模板失败:', err);
         return null;
     }
-}
-
-function rowToTemplate(row) {
-    if (!row) return null;
-    return {
-        id: String(row.id),
-        name: row.name || '未命名模板',
-        columns: JSON.parse(row.columns || '[]'),
-        rows: JSON.parse(row.rows || '[]'),
-        filterField: row.filter_field || '',
-        titleFields: JSON.parse(row.title_fields || '[]'),
-        rules: JSON.parse(row.rules || '[]')
-    };
-}
-
-function getAllSubmissions() {
-    try {
-        const rows = queryAll("SELECT * FROM submissions");
-        const result = {};
-        rows.forEach(row => {
-            const s = rowToSubmission(row);
-            if (!result[s.templateId]) result[s.templateId] = {};
-            if (!result[s.templateId][s.date]) result[s.templateId][s.date] = {};
-            if (!result[s.templateId][s.date][s.userName]) result[s.templateId][s.date][s.userName] = {};
-            result[s.templateId][s.date][s.userName][s.rowIndex] = s.data;
-        });
-        return result;
-    } catch (err) {
-        console.error('读取提交数据失败:', err);
-        return {};
-    }
-}
-
-function rowToSubmission(row) {
-    return {
-        templateId: String(row.template_id),
-        date: row.date,
-        userName: row.user_name,
-        rowIndex: row.row_index,
-        data: JSON.parse(row.data || '{}')
-    };
 }
 
 function setDownloadHeader(res, fileName) {

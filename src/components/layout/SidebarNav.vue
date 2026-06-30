@@ -53,6 +53,7 @@
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useDataStore } from '@/stores/useDataStore';
+import { getCurrentDate } from '@/utils/date';
 import NavItem from './NavItem.vue';
 
 const route = useRoute();
@@ -65,7 +66,7 @@ function isActive(name: string): boolean {
 // 简单计算填报进度
 const progressPercent = computed(() => {
   const sub = dataStore.sub;
-  const today = new Date().toISOString().split('T')[0];
+  const today = getCurrentDate();
   let filled = 0;
   let total = 0;
 

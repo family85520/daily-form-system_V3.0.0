@@ -2,10 +2,10 @@ import type { GlobalThemeOverrides } from 'naive-ui'
 
 export const themeOverrides: GlobalThemeOverrides = {
   common: {
-    primaryColor: '#2563eb',
-    primaryColorHover: '#3b82f6',
-    primaryColorPressed: '#1d4ed8',
-    primaryColorSuppl: '#dbeafe',
+    primaryColor: '#26A69A',
+    primaryColorHover: '#2BB5AA',
+    primaryColorPressed: '#1F8F85',
+    primaryColorSuppl: '#E0F5F3',
     errorColor: '#dc2626',
     errorColorHover: '#ef4444',
     errorColorPressed: '#b91c1c',
@@ -78,8 +78,8 @@ export const themeOverrides: GlobalThemeOverrides = {
     heightMedium: '36px',
     color: '#ffffff',
     colorFocus: '#ffffff',
-    borderHover: '#3b82f6',
-    borderFocus: '#2563eb',
+    borderHover: '#2BB5AA',
+    borderFocus: '#26A69A',
   },
   Select: {
     peers: {

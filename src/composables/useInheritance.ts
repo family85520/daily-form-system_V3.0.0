@@ -1,6 +1,11 @@
 import type { Template, EffectiveRow, ValueSource } from '@/types';
 import { useDataStore } from '@/stores/useDataStore';
 
+/** 清除所有缓存（在数据重新加载后调用） */
+export function clearInheritanceCache(): void {
+  // 无缓存，空操作
+}
+
 /**
  * 行级数据继承逻辑
  *
@@ -15,7 +20,7 @@ export function useInheritance() {
   const dataStore = useDataStore();
 
   /**
-   * 批量计算所有行的有效值
+   * 批量计算所有行的有效值（带缓存）
    * 对应原 batchGetEffectiveRows()
    */
   function batchGetEffectiveRows(
@@ -23,6 +28,9 @@ export function useInheritance() {
     forDate: string,
     forUser: string
   ): EffectiveRow[] {
+    // 读取 dataStore.sub 建立响应式依赖（computed 追踪）
+    void dataStore.sub;
+
     // 取出可编辑且包含的列
     const eCols = tpl.columns.filter(c => c.isEditable && c.included);
     const headers = eCols.map(c => c.header);

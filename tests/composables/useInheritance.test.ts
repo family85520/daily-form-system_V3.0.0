@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
-import { useInheritance } from '@/composables/useInheritance';
+import { useInheritance, clearInheritanceCache } from '@/composables/useInheritance';
 import { useDataStore } from '@/stores/useDataStore';
 import type { Template } from '@/types';
 
@@ -29,6 +29,7 @@ describe('useInheritance', () => {
 
   beforeEach(() => {
     setActivePinia(createPinia());
+    clearInheritanceCache();
     dataStore = useDataStore();
     inheritance = useInheritance();
   });

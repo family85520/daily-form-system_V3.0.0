@@ -6,6 +6,7 @@ import type {
   RuleActionType,
   ValueSourceType,
 } from '@/types';
+import { normalizeDate } from '@/utils/date';
 
 /**
  * 字段校验 + 规则引擎
@@ -52,10 +53,11 @@ export function useValidation() {
 
     // 日期格式校验（兼容 YYYY-MM-DD 和 YYYY/MM/DD，忽略非日期占位文本）
     if (col.type === 'date') {
-      const normalized = val.replace(/\//g, '-');
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(normalized)) {
+      const normalized = normalizeDate(val);
+      if (!normalized) {
+        // normalizeDate 返回 '' 说明不是合法日期
         // 仅当值以4位数字年份开头时才报格式错误，避免占位符文本（如 "yyyy/mm/日"）误触发
-        if (/^\d{4}/.test(normalized)) {
+        if (/^\d{4}/.test(val.replace(/\//g, '-'))) {
           errors.push('日期格式应为 YYYY-MM-DD');
         }
       }
@@ -304,41 +306,14 @@ export function useValidation() {
     _user: string,
     lineNum?: number
   ): string[] {
-    // ===== 调试日志：打印当前校验数据 =====
-    //console.groupCollapsed('[校验调试] ri=' + _ri + ' tpl=' + (tpl.name || tpl.id));
-    //console.log('校验数据 data:', JSON.parse(JSON.stringify(data)));
-    // 打印所有日期字段的值及其类型
-    //allCols.forEach(c => {
-    //  if (c.type === 'date') {
-    //    const v = data[c.header];
-    //    console.log(`  日期字段「${c.header}」=`, JSON.stringify(v), `类型=${typeof v} 长度=${(v||'').length}`);
-    //  }
-    //});
-    // 打印 forbid 规则涉及的字段值
-    //const rules = tpl.rules || [];
-    //rules.forEach((rule, i) => {
-    //  if (rule.disabled) return;
-    //  const tgt = rule.action?.target;
-    //  if (tgt) {
-    //    const v = data[tgt];
-    //    console.log(`  规则${i} 目标字段「${tgt}」=`, JSON.stringify(v), `类型=${typeof v}`);
-    //  }
-    //});
-    //console.groupEnd();
-    // ===== 调试日志结束 =====
-
-    // ===== 校验前统一标准化日期字段 =====
+    // 校验前统一标准化日期字段
     allCols.forEach(c => {
       if (c.type === 'date' && data[c.header] !== undefined) {
         const raw = data[c.header];
         if (!raw) return;
-        const n = raw.replace(/\//g, '-');
-        // "待定"、"yyyy/mm/日" 等非合法日期值 → 视为空
-        data[c.header] = /^\d{4}-\d{2}-\d{2}$/.test(n) ? n : '';
+        data[c.header] = normalizeDate(raw);
       }
     });
-    // ===== 标准化结束 =====
-    // console.log('[标准化后]', JSON.parse(JSON.stringify(data)));
 
     applyCopyRules(tpl, data);
     const errors: string[] = [];

@@ -8,6 +8,8 @@ import type {
   ConnectionStatus,
 } from '@/types';
 import { useAuthStore } from './useAuthStore';
+import { clearCache } from '@/composables/useSequence';
+import { clearInheritanceCache } from '@/composables/useInheritance';
 
 export const useDataStore = defineStore('data', () => {
   // ===== 核心状态（对应原 D 对象） =====
@@ -121,6 +123,10 @@ export const useDataStore = defineStore('data', () => {
       members.value = data.members!;
       sub.value = data.sub!;
 
+      // 数据已重新加载，清除旧的序列缓存和继承缓存
+      clearCache(''); // 传入空字符串清除全部
+      clearInheritanceCache();
+
       updateConnStatus('ok');
     } catch (_err) {
       console.error('加载数据失败:', _err);
@@ -145,17 +151,43 @@ export const useDataStore = defineStore('data', () => {
       const json = await res.json();
       if (!json.success) throw new Error(json.error || '保存失败');
 
-      // 更新本地状态
+      // 服务器保存成功后，更新本地状态
       if (!sub.value[tplId]) sub.value[tplId] = {};
       if (!sub.value[tplId][date]) sub.value[tplId][date] = {};
       if (!sub.value[tplId][date][user]) sub.value[tplId][date][user] = {};
+
+      // 保存旧值以便失败时回滚
+      const oldValues: Record<string, RowSubmission> = {};
+      for (const [ri, vals] of Object.entries(sub.value[tplId][date][user])) {
+        if (submissions[ri] !== undefined) {
+          oldValues[ri] = vals as RowSubmission;
+        }
+      }
+
       Object.assign(sub.value[tplId][date][user], submissions);
 
       // 自动将用户加入成员列表
       if (!members.value[tplId]) members.value[tplId] = [];
       if (user && !members.value[tplId].includes(user)) {
         members.value[tplId].push(user);
-        await saveMembers(tplId);
+        try {
+          await saveMembers(tplId);
+        } catch (mErr) {
+          console.error('成员保存失败，回滚提交数据:', mErr);
+          // 回滚成员列表
+          members.value[tplId].pop();
+          // 回滚提交数据
+          for (const [ri, oldVal] of Object.entries(oldValues)) {
+            sub.value[tplId][date][user][ri] = oldVal;
+          }
+          // 删除已添加但值为空的行
+          for (const ri of Object.keys(submissions)) {
+            if (!(ri in oldValues) && !sub.value[tplId][date][user][ri]) {
+              delete sub.value[tplId][date][user][ri];
+            }
+          }
+          throw mErr;
+        }
       }
 
       updateConnStatus('ok');

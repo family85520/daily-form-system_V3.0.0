@@ -222,20 +222,22 @@ async function onSave() {
       return;
     }
 
-    if (!tpl.rows) tpl.rows = [];
-    tpl.rows.push(newRow);
-
-    if (ff && newRow[ff]) {
-      const memberName = String(newRow[ff]).trim();
-      if (memberName && !dataStore.members[tpl.id]?.includes(memberName)) {
-        if (!dataStore.members[tpl.id]) dataStore.members[tpl.id] = [];
-        dataStore.members[tpl.id].push(memberName);
-      }
+    // 先确保成员列表中有该用户（本地）
+    const memberName = ff ? String(newRow[ff]).trim() : cu;
+    if (memberName && !dataStore.members[tpl.id]?.includes(memberName)) {
+      if (!dataStore.members[tpl.id]) dataStore.members[tpl.id] = [];
+      dataStore.members[tpl.id].push(memberName);
     }
 
+    // 先将新行加入模板（本地）
+    if (!tpl.rows) tpl.rows = [];
+    const newIdx = tpl.rows.length;
+    tpl.rows.push(newRow);
+
+    // 先保存模板，成功后再保存提交数据
     await dataStore.saveTemplate(tpl);
 
-    const newIdx = tpl.rows.length - 1;
+    // 模板保存成功后，保存提交数据
     const submitData: Record<string, string> = {};
     editableCols.value.forEach(c => {
       if (ff && c.header === ff) {
@@ -246,11 +248,20 @@ async function onSave() {
     });
 
     await dataStore.saveSubmission(tpl.id, cd, cu, { [String(newIdx)]: submitData });
+
+    // 确保成员也保存到后端
+    await dataStore.saveMembers(tpl.id);
+
     toastSuccess('✓ 新增数据行成功');
     emit('saved');
     emit('close');
   } catch (_err) {
     console.error('新增数据行失败:', _err);
+    // 回滚本地模板数据
+    const tpl = props.template;
+    if (tpl.rows && tpl.rows.length > 0) {
+      tpl.rows.pop();
+    }
     showInlineToast('⚠️ 新增失败，请重试');
   }
 }
